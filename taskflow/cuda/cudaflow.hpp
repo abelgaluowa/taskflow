@@ -256,7 +256,7 @@ class cudaFlow {
     in a device memory area pointed by @c dst.
     */
     template <typename T, std::enable_if_t<
-      is_pod_v<T> && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
+      is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
     >
     cudaTask zero(T* dst, size_t count);
 
@@ -271,7 +271,7 @@ class cudaFlow {
     source/destination memory.
     */
     template <typename T, std::enable_if_t<
-      is_pod_v<T> && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
+      is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
     >
     void zero(cudaTask task, T* dst, size_t count);
 
@@ -291,7 +291,7 @@ class cudaFlow {
     The value to fill is interpreted in type @c T rather than byte.
     */
     template <typename T, std::enable_if_t<
-      is_pod_v<T> && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
+      is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
     >
     cudaTask fill(T* dst, T value, size_t count);
 
@@ -306,7 +306,7 @@ class cudaFlow {
     source/destination memory.
     */
     template <typename T, std::enable_if_t<
-      is_pod_v<T> && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
+      is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
     >
     void fill(cudaTask task, T* dst, T value, size_t count);
 
@@ -1302,7 +1302,7 @@ cudaTask cudaFlow::kernel(
 
 // Function: zero
 template <typename T, std::enable_if_t<
-  is_pod_v<T> && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>*
+  is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>*
 >
 cudaTask cudaFlow::zero(T* dst, size_t count) {
 
@@ -1324,7 +1324,7 @@ cudaTask cudaFlow::zero(T* dst, size_t count) {
 
 // Function: fill
 template <typename T, std::enable_if_t<
-  is_pod_v<T> && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>*
+  is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>*
 >
 cudaTask cudaFlow::fill(T* dst, T value, size_t count) {
 
@@ -1498,7 +1498,7 @@ inline void cudaFlow::memset(cudaTask task, void* dst, int ch, size_t count) {
 
 // Procedure: fill
 template <typename T, std::enable_if_t<
-  is_pod_v<T> && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>*
+  is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>*
 >
 void cudaFlow::fill(cudaTask task, T* dst, T value, size_t count) {
 
@@ -1516,7 +1516,7 @@ void cudaFlow::fill(cudaTask task, T* dst, T value, size_t count) {
 
 // Procedure: zero
 template <typename T, std::enable_if_t<
-  is_pod_v<T> && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>*
+  is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>*
 >
 void cudaFlow::zero(cudaTask task, T* dst, size_t count) {
 

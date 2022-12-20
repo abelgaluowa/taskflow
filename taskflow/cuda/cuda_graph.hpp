@@ -83,7 +83,7 @@ inline cudaMemsetParams cuda_get_memset_parms(void* dst, int ch, size_t count) {
 @brief gets the memset node parameter of a fill task (typed)
 */
 template <typename T, std::enable_if_t<
-  is_pod_v<T> && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
+  is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
 >
 cudaMemsetParams cuda_get_fill_parms(T* dst, T value, size_t count) {
 
@@ -107,7 +107,7 @@ cudaMemsetParams cuda_get_fill_parms(T* dst, T value, size_t count) {
 @brief gets the memset node parameter of a zero task (typed)
 */
 template <typename T, std::enable_if_t<
-  is_pod_v<T> && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
+  is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
 >
 cudaMemsetParams cuda_get_zero_parms(T* dst, size_t count) {
 

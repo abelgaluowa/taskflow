@@ -237,7 +237,7 @@ constexpr auto get_index_v = get_index<T, Ts...>::value;
 template <typename T>
 struct is_pod {
   static const bool value = std::is_trivial<T>::value &&
-                            std::is_standard_layout_v<T>;
+                            std::is_standard_layout<T>::value;
 };
 
 template <typename T>

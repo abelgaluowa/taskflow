@@ -47,11 +47,8 @@ struct dependent_false {
 template <typename T>
 struct is_pod {
   static const bool value = std::is_trivial<T>::value &&
-                            std::is_standard_layout_v<T>;
+                            std::is_standard_layout<T>::value;
 };
-
-template <typename T>
-constexpr bool is_pod_v = is_pod<T>::value;
 
 //-----------------------------------------------------------------------------
 // NoInit
@@ -60,7 +57,7 @@ constexpr bool is_pod_v = is_pod<T>::value;
 template <typename T>
 struct NoInit {
 
-  //static_assert(is_pod_v<T>, "NoInit only supports POD type");
+  //static_assert(is_pod<T>::value, "NoInit only supports POD type");
 
   // constructor without initialization
   NoInit () noexcept {}
@@ -91,7 +88,7 @@ struct MoC {
 };
 
 template <typename T>
-auto make_moc(T&& m) {
+auto make_moc(T&& m)-> MoC<T> {
   return MoC<T>(std::forward<T>(m));
 }
 
