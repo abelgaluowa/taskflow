@@ -34,7 +34,7 @@ cudaTask cublasFlowCapturer::geam(
       );
     }
     else {
-      static_assert(dependent_false_v<T>, "unknown cublas data type");
+      static_assert(dependent_false<T>::value, "unknown cublas data type");
     }
     TF_CHECK_CUBLAS(stat, "failed to run geam");
   });
@@ -82,7 +82,7 @@ cudaTask cublasFlowCapturer::gemm(
       );
     }
     else {
-      static_assert(dependent_false_v<T>, "unknown cublas data type");
+      static_assert(dependent_false<T>::value, "unknown cublas data type");
     }
     TF_CHECK_CUBLAS(stat, "failed to run gemm");
   });
@@ -129,7 +129,7 @@ cudaTask cublasFlowCapturer::gemm_batched(
         ta, tb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc, bc
       );
     }
-    else static_assert(dependent_false_v<T>, "unknown cublas data type");
+    else static_assert(dependent_false<T>::value, "unknown cublas data type");
     TF_CHECK_CUBLAS(stat, "failed to run gemm_batched");
   });
 }
@@ -177,7 +177,7 @@ cudaTask cublasFlowCapturer::gemm_sbatched(
         ta, tb, m, n, k, alpha, A, lda, sA, B, ldb, sB, beta, C, ldc, sC, bc
       );
     }
-    else static_assert(dependent_false_v<T>, "unknown cublas data type");
+    else static_assert(dependent_false<T>::value, "unknown cublas data type");
     TF_CHECK_CUBLAS(stat, "failed to run gemm_sbatched");
   });
 }
@@ -225,7 +225,7 @@ cudaTask cublasFlowCapturer::symm(
         side, uplo, m, n, alpha, A, lda, B, ldb, beta, C, ldc
       );
     }
-    else static_assert(dependent_false_v<T>, "unknown cublas data type");
+    else static_assert(dependent_false<T>::value, "unknown cublas data type");
     TF_CHECK_CUBLAS(stat, "failed to run symm");
   });
 }
@@ -272,7 +272,7 @@ cudaTask cublasFlowCapturer::syrk(
         uplo, tran, n, k, alpha, A, lda, beta, C, ldc
       );
     }
-    else static_assert(dependent_false_v<T>, "unknown cublas data type");
+    else static_assert(dependent_false<T>::value, "unknown cublas data type");
     TF_CHECK_CUBLAS(stat, "failed to run syrk");
   });
 }
@@ -319,7 +319,7 @@ cudaTask cublasFlowCapturer::syr2k(
         uplo, tran, n, k, alpha, A, lda, B, ldb, beta, C, ldc
       );
     }
-    else static_assert(dependent_false_v<T>, "unknown cublas data type");
+    else static_assert(dependent_false<T>::value, "unknown cublas data type");
     TF_CHECK_CUBLAS(stat, "failed to run syr2k");
   });
 }
@@ -367,7 +367,7 @@ cudaTask cublasFlowCapturer::syrkx(
         uplo, tran, n, k, alpha, A, lda, B, ldb, beta, C, ldc
       );
     }
-    else static_assert(dependent_false_v<T>, "unknown cublas data type");
+    else static_assert(dependent_false<T>::value, "unknown cublas data type");
     TF_CHECK_CUBLAS(stat, "failed to run syrkx");
   });
 }
@@ -416,7 +416,7 @@ cudaTask cublasFlowCapturer::trmm(
         side, uplo, tran, diag, m, n, alpha, A, lda, B, ldb, C, ldc
       );
     }
-    else static_assert(dependent_false_v<T>, "unknown cublas data type");
+    else static_assert(dependent_false<T>::value, "unknown cublas data type");
     TF_CHECK_CUBLAS(stat, "failed to run trmm");
   });
 }
@@ -464,7 +464,7 @@ cudaTask cublasFlowCapturer::trsm(
         side, uplo, tran, diag, m, n, alpha, A, lda, B, ldb
       );
     }
-    else static_assert(dependent_false_v<T>, "unknown cublas data type");
+    else static_assert(dependent_false<T>::value, "unknown cublas data type");
     TF_CHECK_CUBLAS(stat, "failed to run trsm");
   });
 }

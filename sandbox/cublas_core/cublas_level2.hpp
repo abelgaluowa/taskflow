@@ -35,7 +35,7 @@ cudaTask cublasFlowCapturer::gemv(
       );
     }
     else {
-      static_assert(dependent_false_v<T>, "unknown cublas data type");
+      static_assert(dependent_false<T>::value, "unknown cublas data type");
     }
 
     TF_CHECK_CUBLAS(stat, "failed to capture gemv");
@@ -80,7 +80,7 @@ cudaTask cublasFlowCapturer::trmv(
       stat = cublasDtrmv(_handle, uplo, tran, diag, n, A, lda, x, incx);
     }
     else {
-      static_assert(dependent_false_v<T>, "unknown cublas data type");
+      static_assert(dependent_false<T>::value, "unknown cublas data type");
     }
 
     TF_CHECK_CUBLAS(stat, "failed to capture trmv");
@@ -122,7 +122,7 @@ cudaTask cublasFlowCapturer::trsv(
       stat = cublasDtrsv(_handle, uplo, tran, diag, n, A, lda, x, incx);
     }
     else {
-      static_assert(dependent_false_v<T>, "unknown cublas data type");
+      static_assert(dependent_false<T>::value, "unknown cublas data type");
     }
 
     TF_CHECK_CUBLAS(stat, "failed to capture trsv");
@@ -167,7 +167,7 @@ cudaTask cublasFlowCapturer::symv(
       stat = cublasDsymv(_handle, uplo, n, alpha, A, lda, x, incx, beta, y, incy);
     }
     else {
-      static_assert(dependent_false_v<T>, "unknown cublas data type");
+      static_assert(dependent_false<T>::value, "unknown cublas data type");
     }
 
     TF_CHECK_CUBLAS(stat, "failed to capture symv");
@@ -214,7 +214,7 @@ cudaTask cublasFlowCapturer::syr(
       stat = cublasDsyr(_handle, uplo, n, alpha, x, incx, A, lda);
     }
     else {
-      static_assert(dependent_false_v<T>, "unknown cublas data type");
+      static_assert(dependent_false<T>::value, "unknown cublas data type");
     }
 
     TF_CHECK_CUBLAS(stat, "failed to capture syr");
@@ -260,7 +260,7 @@ cudaTask cublasFlowCapturer::syr2(
       stat = cublasDsyr2(_handle, uplo, n, alpha, x, incx, y, incy, A, lda);
     }
     else {
-      static_assert(dependent_false_v<T>, "unknown cublas data type");
+      static_assert(dependent_false<T>::value, "unknown cublas data type");
     }
 
     TF_CHECK_CUBLAS(stat, "failed to capture syr2");

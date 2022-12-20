@@ -44,9 +44,6 @@ struct dependent_false {
   static constexpr bool value = false;
 };
 
-template <typename... T>
-constexpr auto dependent_false_v = dependent_false<T...>::value;
-
 //-----------------------------------------------------------------------------
 // Move-On-Copy
 //-----------------------------------------------------------------------------

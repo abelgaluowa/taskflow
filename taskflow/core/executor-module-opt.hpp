@@ -2010,7 +2010,7 @@ void Runtime::run(C&& callable) {
     }
   }
   else {
-    static_assert(dependent_false_v<C>, "unsupported task callable to run");
+    static_assert(dependent_false<C>::value, "unsupported task callable to run");
   }
 }
 

@@ -23,7 +23,7 @@ cudaTask cublasFlowCapturer::amax(
       stat = cublasIdamax(_handle, n, x, incx, result);
     }
     else {
-      static_assert(dependent_false_v<T>, "unknown cublas data type");
+      static_assert(dependent_false<T>::value, "unknown cublas data type");
     }
 
     TF_CHECK_CUBLAS(stat, "failed to run cublas<t>amax");
@@ -45,7 +45,7 @@ cudaTask cublasFlowCapturer::amin(
       stat = cublasIdamin(_handle, n, x, incx, result);
     }
     else {
-      static_assert(dependent_false_v<T>, "unknown cublas data type");
+      static_assert(dependent_false<T>::value, "unknown cublas data type");
     }
     TF_CHECK_CUBLAS(stat, "failed to run cublas<t>amin");
   });
@@ -66,7 +66,7 @@ cudaTask cublasFlowCapturer::asum(
       stat = cublasDasum(_handle, n, x, incx, result);
     }
     else {
-      static_assert(dependent_false_v<T>, "unknown cublas data type");
+      static_assert(dependent_false<T>::value, "unknown cublas data type");
     }
 
     TF_CHECK_CUBLAS(stat, "failed to run cublas<t>asum");
@@ -88,7 +88,7 @@ cudaTask cublasFlowCapturer::axpy(
       stat = cublasDaxpy(_handle, n, alpha, x, incx, y, incy);
     }
     else {
-      static_assert(dependent_false_v<T>, "unknown cublas data type");
+      static_assert(dependent_false<T>::value, "unknown cublas data type");
     }
     TF_CHECK_CUBLAS(stat, "failed to run cublas<t>axpy");
   });
@@ -109,7 +109,7 @@ cudaTask cublasFlowCapturer::vcopy(
       stat = cublasDcopy(_handle, n, x, incx, y, incy);
     }
     else {
-      static_assert(dependent_false_v<T>, "unknown cublas data type");
+      static_assert(dependent_false<T>::value, "unknown cublas data type");
     }
 
     TF_CHECK_CUBLAS(stat, "failed to run cublas<t>copy");
@@ -131,7 +131,7 @@ cudaTask cublasFlowCapturer::dot(
       stat = cublasDdot(_handle, n, x, incx, y, incy, result);
     }
     else {
-      static_assert(dependent_false_v<T>, "unknown cublas data type");
+      static_assert(dependent_false<T>::value, "unknown cublas data type");
     }
     TF_CHECK_CUBLAS(stat, "failed to run cublas<t>dot");
   });
@@ -149,7 +149,7 @@ cudaTask cublasFlowCapturer::nrm2(int n, const T* x, int incx, T* result) {
       stat = cublasDnrm2(_handle, n, x, incx, result);
     }
     else {
-      static_assert(dependent_false_v<T>, "unknown cublas data type");
+      static_assert(dependent_false<T>::value, "unknown cublas data type");
     }
 
     TF_CHECK_CUBLAS(stat, "failed to run cublas<t>nrm2");
@@ -169,7 +169,7 @@ cudaTask cublasFlowCapturer::scal(int n, const T* scalar, T* x, int incx) {
       stat = cublasDscal(_handle, n, scalar, x, incx);
     }
     else {
-      static_assert(dependent_false_v<T>, "unknown cublas data type");
+      static_assert(dependent_false<T>::value, "unknown cublas data type");
     }
     TF_CHECK_CUBLAS(stat, "failed to run cublas<t>scal");
   });
@@ -187,7 +187,7 @@ cudaTask cublasFlowCapturer::swap(int n, T* x, int incx, T* y, int incy) {
       stat = cublasDswap(_handle, n, x, incx, y, incy);
     }
     else {
-      static_assert(dependent_false_v<T>, "unknown cublas data type");
+      static_assert(dependent_false<T>::value, "unknown cublas data type");
     }
 
     TF_CHECK_CUBLAS(stat, "failed to run cublas<t>swap");

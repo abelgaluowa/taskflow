@@ -611,7 +611,7 @@ Task& Task::work(C&& c) {
     _node->_handle.emplace<Node::Runtime>(std::forward<C>(c));
   }
   else {
-    static_assert(dependent_false_v<C>, "invalid task callable");
+    static_assert(dependent_false<C>::value, "invalid task callable");
   }
   return *this;
 }

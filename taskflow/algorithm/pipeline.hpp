@@ -668,7 +668,7 @@ void Pipeline<Ps...>::_on_pipe(Pipeflow& pf, Runtime& rt) {
       pipe._callable(pf, rt);
     }
     else {
-      static_assert(dependent_false_v<callable_t>, "un-supported pipe callable type");
+      static_assert(dependent_false<callable_t>::value, "un-supported pipe callable type");
     }
   }, _pipes, pf._pipe);
 }
@@ -1411,7 +1411,7 @@ void ScalablePipeline<P>::_on_pipe(Pipeflow& pf, Runtime& rt) {
     _pipes[pf._pipe]->_callable(pf, rt);
   }
   else {
-    static_assert(dependent_false_v<callable_t>, "un-supported pipe callable type");
+    static_assert(dependent_false<callable_t>::value, "un-supported pipe callable type");
   }
 }
 

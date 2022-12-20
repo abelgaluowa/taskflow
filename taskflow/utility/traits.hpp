@@ -36,15 +36,10 @@ namespace tf {
 //-----------------------------------------------------------------------------
 
 //// Struct: dependent_false
-//template <typename... T>
-//struct dependent_false {
-//  static constexpr bool value = false;
-//};
-//
-//template <typename... T>
-//constexpr auto dependent_false_v = dependent_false<T...>::value;
-
-template<typename> inline constexpr bool dependent_false_v = false;
+template <typename... T>
+struct dependent_false {
+  static constexpr bool value = false;
+};
 
 // ----------------------------------------------------------------------------
 // is_pod
