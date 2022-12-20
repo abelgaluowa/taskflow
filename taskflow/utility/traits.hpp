@@ -46,7 +46,7 @@ struct dependent_false {
 //-----------------------------------------------------------------------------
 template <typename T>
 struct is_pod {
-  static const bool value = std::is_trivial_v<T> && 
+  static const bool value = std::is_trivial<T>::value &&
                             std::is_standard_layout_v<T>;
 };
 

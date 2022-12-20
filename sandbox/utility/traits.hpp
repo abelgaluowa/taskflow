@@ -236,7 +236,7 @@ constexpr auto get_index_v = get_index<T, Ts...>::value;
 //-----------------------------------------------------------------------------
 template <typename T>
 struct is_pod {
-  static const bool value = std::is_trivial_v<T> &&
+  static const bool value = std::is_trivial<T>::value &&
                             std::is_standard_layout_v<T>;
 };
 
@@ -250,7 +250,7 @@ template <class To, class From>
 typename std::enable_if<
   (sizeof(To) == sizeof(From)) &&
   std::is_trivially_copyable_v<From> &&
-  std::is_trivial_v<To>,
+  std::is_trivial<To>::value,
   // this implementation requires that To is trivially default constructible
   To
 >::type
