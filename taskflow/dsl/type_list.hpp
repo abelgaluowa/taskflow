@@ -39,8 +39,6 @@ template <typename IN> struct IsTypeList {
   constexpr static bool value = false;
 };
 
-template <typename IN> constexpr bool IsTypeList_v = IsTypeList<IN>::value;
-
 template <typename... Ts> struct IsTypeList<TypeList<Ts...>> {
   constexpr static bool value = true;
 };
@@ -69,14 +67,14 @@ struct Flatten {
 template <typename IN> using Flatten_t = typename Flatten<IN>::type;
 
 template <typename IN, typename OUT>
-struct Flatten<IN, OUT, std::enable_if_t<IsTypeList_v<typename IN::head>>> {
+struct Flatten<IN, OUT, std::enable_if_t<IsTypeList<typename IN::head>::value>> {
   using type =
       typename Flatten<typename IN::tails,
                        Concat_t<OUT, Flatten_t<typename IN::head>>>::type;
 };
 
 template <typename IN, typename OUT>
-struct Flatten<IN, OUT, std::enable_if_t<!IsTypeList_v<typename IN::head>>> {
+struct Flatten<IN, OUT, std::enable_if_t<!IsTypeList<typename IN::head>::value>> {
   using type = typename Flatten<
       typename IN::tails,
       typename OUT::template appendTo<typename IN::head>>::type;

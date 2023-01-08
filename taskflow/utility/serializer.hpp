@@ -39,18 +39,12 @@ struct is_std_basic_string : std::false_type {};
 template <typename... ArgsT>
 struct is_std_basic_string <std::basic_string<ArgsT...>> : std::true_type {};
 
-template <typename T>
-constexpr bool is_std_basic_string_v = is_std_basic_string<T>::value;
-
 // std::array
 template <typename T>
 struct is_std_array : std::false_type {};
 
 template <typename T, size_t N>
 struct is_std_array <std::array<T, N>> : std::true_type {};
-
-template <typename T>
-constexpr bool is_std_array_v = is_std_array<T>::value;
 
 // std::vector
 template <typename T>
@@ -59,18 +53,12 @@ struct is_std_vector : std::false_type {};
 template <typename... ArgsT>
 struct is_std_vector <std::vector<ArgsT...>> : std::true_type {};
 
-template <typename T>
-constexpr bool is_std_vector_v = is_std_vector<T>::value;
-
 // std::deque
 template <typename T>
 struct is_std_deque : std::false_type {};
 
 template <typename... ArgsT>
 struct is_std_deque <std::deque<ArgsT...>> : std::true_type {};
-
-template <typename T>
-constexpr bool is_std_deque_v = is_std_deque<T>::value;
 
 // std::list
 template <typename T>
@@ -79,18 +67,12 @@ struct is_std_list : std::false_type {};
 template <typename... ArgsT>
 struct is_std_list <std::list<ArgsT...>> : std::true_type {};
 
-template <typename T>
-constexpr bool is_std_list_v = is_std_list<T>::value;
-
 // std::forward_list
 template <typename T>
 struct is_std_forward_list : std::false_type {};
 
 template <typename... ArgsT>
 struct is_std_forward_list <std::forward_list<ArgsT...>> : std::true_type {};
-
-template <typename T>
-constexpr bool is_std_forward_list_v = is_std_forward_list<T>::value;
 
 // std::map
 template <typename T>
@@ -99,18 +81,12 @@ struct is_std_map : std::false_type {};
 template <typename... ArgsT>
 struct is_std_map <std::map<ArgsT...>> : std::true_type {};
 
-template <typename T>
-constexpr bool is_std_map_v = is_std_map<T>::value;
-
 // std::unordered_map
 template <typename T>
 struct is_std_unordered_map : std::false_type {};
 
 template <typename... ArgsT>
 struct is_std_unordered_map <std::unordered_map<ArgsT...>> : std::true_type {};
-
-template <typename T>
-constexpr bool is_std_unordered_map_v = is_std_unordered_map<T>::value;
 
 // std::set
 template <typename T>
@@ -119,18 +95,12 @@ struct is_std_set : std::false_type {};
 template <typename... ArgsT>
 struct is_std_set <std::set<ArgsT...>> : std::true_type {};
 
-template <typename T>
-constexpr bool is_std_set_v = is_std_set<T>::value;
-
 // std::unordered_set
 template <typename T>
 struct is_std_unordered_set : std::false_type {};
 
 template <typename... ArgsT>
 struct is_std_unordered_set <std::unordered_set<ArgsT...>> : std::true_type {};
-
-template <typename T>
-constexpr bool is_std_unordered_set_v = is_std_unordered_set<T>::value;
 
 // std::variant
 template <typename T>
@@ -139,18 +109,12 @@ struct is_std_variant : std::false_type {};
 template <typename... ArgsT>
 struct is_std_variant <std::variant<ArgsT...>> : std::true_type {};
 
-template <typename T>
-constexpr bool is_std_variant_v = is_std_variant<T>::value;
-
 // std::optional
 template <typename T>
 struct is_std_optional : std::false_type {};
 
 template <typename... ArgsT>
 struct is_std_optional <std::optional<ArgsT...>> : std::true_type {};
-
-template <typename T>
-constexpr bool is_std_optional_v = is_std_optional<T>::value;
 
 // std::unique_ptr
 template <typename T>
@@ -159,8 +123,8 @@ struct is_std_unique_ptr : std::false_type {};
 template <typename... ArgsT>
 struct is_std_unique_ptr <std::unique_ptr<ArgsT...>> : std::true_type {};
 
-template <typename T>
-constexpr bool is_std_unique_ptr_v = is_std_unique_ptr<T>::value;
+// template <typename T>
+// constexpr bool is_std_unique_ptr_v = is_std_unique_ptr<T>::value;
 
 // std::shared_ptr
 template <typename T>
@@ -169,17 +133,14 @@ struct is_std_shared_ptr : std::false_type {};
 template <typename... ArgsT>
 struct is_std_shared_ptr <std::shared_ptr<ArgsT...>> : std::true_type {};
 
-template <typename T>
-constexpr bool is_std_shared_ptr_v = is_std_shared_ptr<T>::value;
+// template <typename T>
+// constexpr bool is_std_shared_ptr_v = is_std_shared_ptr<T>::value;
 
 // std::duration
 template <typename T> struct is_std_duration : std::false_type {};
 
 template <typename... ArgsT>
 struct is_std_duration<std::chrono::duration<ArgsT...>> : std::true_type {};
-
-template <typename T>
-constexpr bool is_std_duration_v = is_std_duration<T>::value;
 
 // std::time_point
 template <typename T>
@@ -188,18 +149,12 @@ struct is_std_time_point : std::false_type {};
 template <typename... ArgsT>
 struct is_std_time_point<std::chrono::time_point<ArgsT...>> : std::true_type {};
 
-template <typename T>
-constexpr bool is_std_time_point_v = is_std_time_point<T>::value;
-
 // std::tuple
 template <typename T>
 struct is_std_tuple : std::false_type {};
 
 template <typename... ArgsT>
 struct is_std_tuple<std::tuple<ArgsT...>> : std::true_type {};
-
-template <typename T>
-constexpr bool is_std_tuple_v = is_std_tuple<T>::value;
 
 //-----------------------------------------------------------------------------
 // Type extraction.
@@ -308,28 +263,27 @@ MapItem<KeyT, ValueT> make_kv_pair(KeyT&& k, ValueT&& v) {
 // ----------------------------------------------------------------------------
 
 template <typename T>
-constexpr auto is_default_serializable_v = (
-  std::is_arithmetic_v<T>    ||
-  std::is_enum_v<T>          ||
-  is_std_basic_string_v<T>   ||
-  is_std_vector_v<T>         ||
-  is_std_deque_v<T>          ||
-  is_std_list_v<T>           ||
-  is_std_forward_list_v<T>   ||
-  is_std_map_v<T>            ||
-  is_std_unordered_map_v<T>  ||
-  is_std_set_v<T>            ||
-  is_std_unordered_set_v<T>  ||
-  is_std_duration_v<T>       ||
-  is_std_time_point_v<T>     ||
-  is_std_variant_v<T>        ||
-  is_std_optional_v<T>       ||
-  is_std_tuple_v<T>          ||
-  is_std_array_v<T>
-);
+struct is_default_serializable : std::integral_constant<bool,
+    std::is_arithmetic_v<T>    ||
+    std::is_enum_v<T>          ||
+    is_std_basic_string<T>::value   ||
+    is_std_vector<T>::value         ||
+    is_std_deque<T>::value          ||
+    is_std_list<T>::value           ||
+    is_std_forward_list<T>::value   ||
+    is_std_map<T>::value            ||
+    is_std_unordered_map<T>::value  ||
+    is_std_set<T>::value            ||
+    is_std_unordered_set<T>::value  ||
+    is_std_duration<T>::value       ||
+    is_std_time_point<T>::value     ||
+    is_std_variant<T>::value        ||
+    is_std_optional<T>::value       ||
+    is_std_tuple<T>::value          ||
+    is_std_array<T>::value> {};
 
 
-// Class: Serializer
+    // Class: Serializer
 template <typename Stream, typename SizeType = std::streamsize>
 class Serializer {
 
@@ -345,7 +299,7 @@ class Serializer {
     Stream& _stream;
 
     template <typename T,
-      std::enable_if_t<!is_default_serializable_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<!is_default_serializable<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
@@ -355,19 +309,19 @@ class Serializer {
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_basic_string_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_basic_string<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_vector_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_vector<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
       std::enable_if_t<
-        is_std_deque_v<std::decay_t<T>> ||
-        is_std_list_v<std::decay_t<T>>,
+        is_std_deque<std::decay_t<T>>::value ||
+        is_std_list<std::decay_t<T>>::value,
         void
       >* = nullptr
     >
@@ -375,7 +329,7 @@ class Serializer {
 
     template <typename T,
       std::enable_if_t<
-        is_std_forward_list_v<std::decay_t<T>>,
+        is_std_forward_list<std::decay_t<T>>::value,
         void
       >* = nullptr
     >
@@ -383,8 +337,8 @@ class Serializer {
 
     template <typename T,
       std::enable_if_t<
-        is_std_map_v<std::decay_t<T>> ||
-        is_std_unordered_map_v<std::decay_t<T>>,
+        is_std_map<std::decay_t<T>>::value ||
+        is_std_unordered_map<std::decay_t<T>>::value,
         void
       >* = nullptr
     >
@@ -392,8 +346,8 @@ class Serializer {
 
     template <typename T,
       std::enable_if_t<
-        is_std_set_v<std::decay_t<T>> ||
-        is_std_unordered_set_v<std::decay_t<T>>,
+        is_std_set<std::decay_t<T>>::value ||
+        is_std_unordered_set<std::decay_t<T>>::value,
         void
       >* = nullptr
     >
@@ -405,32 +359,32 @@ class Serializer {
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_duration_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_duration<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_time_point_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_time_point<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_optional_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_optional<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_variant_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_variant<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_tuple_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_tuple<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_array_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_array<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
@@ -462,7 +416,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // std::basic_string
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_basic_string_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_basic_string<std::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   using U = std::decay_t<T>;
@@ -477,7 +431,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // std::vector
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_vector_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_vector<std::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 
@@ -503,8 +457,8 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // std::list and std::deque
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_deque_v<std::decay_t<T>> ||
-                   is_std_list_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_deque<std::decay_t<T>>::value ||
+                   is_std_list<std::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   auto sz = _save(make_size_tag(t.size()));
@@ -517,7 +471,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // std::forward_list
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_forward_list_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_forward_list<std::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   auto sz = _save(make_size_tag(std::distance(t.begin(), t.end())));
@@ -530,8 +484,8 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // std::map and std::unordered_map
 template <typename Stream, typename SizeType>
 template <typename T, std::enable_if_t<
-  is_std_map_v<std::decay_t<T>> ||
-  is_std_unordered_map_v<std::decay_t<T>>,
+  is_std_map<std::decay_t<T>>::value ||
+  is_std_unordered_map<std::decay_t<T>>::value,
   void
 >*>
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
@@ -545,8 +499,8 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // std::set and std::unordered_set
 template <typename Stream, typename SizeType>
 template <typename T, std::enable_if_t<
-  is_std_set_v<std::decay_t<T>> ||
-  is_std_unordered_set_v<std::decay_t<T>>,
+  is_std_set<std::decay_t<T>>::value ||
+  is_std_unordered_set<std::decay_t<T>>::value,
   void
 >*>
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
@@ -570,7 +524,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // duration data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_duration_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_duration<std::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   return _save(t.count());
@@ -579,7 +533,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // time point data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_time_point_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_time_point<std::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   return _save(t.time_since_epoch());
@@ -588,7 +542,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // optional data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_optional_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_optional<std::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   if(bool flag = t.has_value(); flag) {
@@ -602,7 +556,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // variant type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_variant_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_variant<std::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   return _save(t.index()) +
@@ -612,7 +566,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // tuple type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_tuple_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_tuple<std::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   return std::apply(
@@ -626,7 +580,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // array
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_array_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_array<std::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 
@@ -653,7 +607,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // custom save method
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<!is_default_serializable_v<std::decay_t<T>>, void>*
+  std::enable_if_t<!is_default_serializable<std::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   return t.save(*this);
@@ -664,24 +618,24 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // ----------------------------------------------------------------------------
 
 template <typename T>
-constexpr auto is_default_deserializable_v =
-  std::is_arithmetic_v<T>    ||
-  std::is_enum_v<T>          ||
-  is_std_basic_string_v<T>   ||
-  is_std_vector_v<T>         ||
-  is_std_deque_v<T>          ||
-  is_std_list_v<T>           ||
-  is_std_forward_list_v<T>   ||
-  is_std_map_v<T>            ||
-  is_std_unordered_map_v<T>  ||
-  is_std_set_v<T>            ||
-  is_std_unordered_set_v<T>  ||
-  is_std_duration_v<T>       ||
-  is_std_time_point_v<T>     ||
-  is_std_variant_v<T>        ||
-  is_std_optional_v<T>       ||
-  is_std_tuple_v<T>          ||
-  is_std_array_v<T>;
+struct is_default_deserializable: std::integral_constant<bool,
+      std::is_arithmetic_v<T>    ||
+      std::is_enum_v<T>          ||
+      is_std_basic_string<T>::value   ||
+      is_std_vector<T>::value         ||
+      is_std_deque<T>::value          ||
+      is_std_list<T>::value           ||
+      is_std_forward_list<T>::value   ||
+      is_std_map<T>::value            ||
+      is_std_unordered_map<T>::value  ||
+      is_std_set<T>::value            ||
+      is_std_unordered_set<T>::value  ||
+      is_std_duration<T>::value       ||
+      is_std_time_point<T>::value     ||
+      is_std_variant<T>::value        ||
+      is_std_optional<T>::value       ||
+      is_std_tuple<T>::value          ||
+      is_std_array<T>::value> {};
 
 // Class: Deserializer
 template <typename Stream, typename SizeType = std::streamsize>
@@ -718,42 +672,42 @@ class Deserializer {
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_basic_string_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_basic_string<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_vector_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_vector<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
       std::enable_if_t<
-        is_std_deque_v<std::decay_t<T>> ||
-        is_std_list_v<std::decay_t<T>>  ||
-        is_std_forward_list_v<std::decay_t<T>>,
+        is_std_deque<std::decay_t<T>>::value ||
+        is_std_list<std::decay_t<T>>::value  ||
+        is_std_forward_list<std::decay_t<T>>::value,
         void
       >* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_map_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_map<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_unordered_map_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_unordered_map<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_set_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_set<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_unordered_set_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_unordered_set<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
@@ -763,37 +717,37 @@ class Deserializer {
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_duration_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_duration<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_time_point_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_time_point<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_optional_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_optional<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_variant_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_variant<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_tuple_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_tuple<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_array_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<is_std_array<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<!is_default_deserializable_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<!is_default_deserializable<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 };
@@ -848,7 +802,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // std::basic_string
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_basic_string_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_basic_string<std::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
   using U = std::decay_t<T>;
@@ -862,7 +816,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // std::vector
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_vector_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_vector<std::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
@@ -889,9 +843,9 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // std::list and std::deque
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_deque_v<std::decay_t<T>> ||
-                   is_std_list_v<std::decay_t<T>>  ||
-                   is_std_forward_list_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_deque<std::decay_t<T>>::value ||
+                   is_std_list<std::decay_t<T>>::value  ||
+                   is_std_forward_list<std::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
   using U = std::decay_t<T>;
@@ -909,7 +863,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // std::map
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_map_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_map<std::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
@@ -934,7 +888,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // std::unordered_map
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_unordered_map_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_unordered_map<std::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
   using U = std::decay_t<T>;
@@ -958,7 +912,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // std::set
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_set_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_set<std::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
@@ -982,7 +936,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // std::unordered_set
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_unordered_set_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_unordered_set<std::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
@@ -1019,7 +973,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // duration data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_duration_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_duration<std::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
   using U = std::decay_t<T>;
@@ -1032,7 +986,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // time point data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_time_point_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_time_point<std::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
   using U = std::decay_t<T>;
@@ -1045,7 +999,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // optional data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_optional_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_optional<std::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
@@ -1068,7 +1022,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // variant type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_variant_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_variant<std::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
   std::decay_t<decltype(t.index())> idx;
@@ -1079,7 +1033,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // tuple type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_tuple_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_tuple<std::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
   return std::apply(
@@ -1093,7 +1047,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // array
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_array_v<std::decay_t<T>>, void>*
+  std::enable_if_t<is_std_array<std::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
@@ -1120,7 +1074,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // custom save method
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<!is_default_deserializable_v<std::decay_t<T>>, void>*
+  std::enable_if_t<!is_default_deserializable<std::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
   return t.load(*this);

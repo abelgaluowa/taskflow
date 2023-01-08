@@ -635,7 +635,7 @@ void syclFlow::single_task(syclTask task, F&& func) {
 // ############################################################################
     
 // FlowBuilder::emplace_on
-template <typename C, typename Q, std::enable_if_t<is_syclflow_task_v<C>, void>*>
+template <typename C, typename Q, std::enable_if_t<is_syclflow_task<C>::value, void>*>
 Task FlowBuilder::emplace_on(C&& callable, Q&& q) {
   auto n = _graph._emplace_back(
     std::in_place_type_t<Node::syclFlow>{},
@@ -649,7 +649,7 @@ Task FlowBuilder::emplace_on(C&& callable, Q&& q) {
 }
 
 // FlowBuilder::emplace
-template <typename C, std::enable_if_t<is_syclflow_task_v<C>, void>*>
+template <typename C, std::enable_if_t<is_syclflow_task<C>::value, void>*>
 Task FlowBuilder::emplace(C&& callable) {
   return emplace_on(std::forward<C>(callable), sycl::queue{});
 }
@@ -660,7 +660,7 @@ Task FlowBuilder::emplace(C&& callable) {
 
 // Procedure: _invoke_syclflow_task_entry (syclFlow)
 template <typename C, typename Q,
-  std::enable_if_t<is_syclflow_task_v<C>, void>*
+  std::enable_if_t<is_syclflow_task<C>::value, void>*
 >
 void Executor::_invoke_syclflow_task_entry(Node* node, C&& c, Q& queue) {
 

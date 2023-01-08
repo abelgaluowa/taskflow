@@ -47,7 +47,7 @@ class FlowBuilder {
     Please refer to @ref StaticTasking for details.
     */
     template <typename C,
-      std::enable_if_t<is_static_task_v<C>, void>* = nullptr
+      std::enable_if_t<is_static_task<C>::value, void>* = nullptr
     >
     Task emplace(C&& callable);
 
@@ -73,7 +73,7 @@ class FlowBuilder {
     Please refer to @ref DynamicTasking for details.
     */
     template <typename C,
-      std::enable_if_t<is_dynamic_task_v<C>, void>* = nullptr
+      std::enable_if_t<is_dynamic_task<C>::value, void>* = nullptr
     >
     Task emplace(C&& callable);
 
@@ -107,7 +107,7 @@ class FlowBuilder {
     Please refer to @ref ConditionalTasking for details.
     */
     template <typename C,
-      std::enable_if_t<is_condition_task_v<C>, void>* = nullptr
+      std::enable_if_t<is_condition_task<C>::value, void>* = nullptr
     >
     Task emplace(C&& callable);
 
@@ -143,7 +143,7 @@ class FlowBuilder {
     Please refer to @ref ConditionalTasking for details.
     */
     template <typename C,
-      std::enable_if_t<is_multi_condition_task_v<C>, void>* = nullptr
+      std::enable_if_t<is_multi_condition_task<C>::value, void>* = nullptr
     >
     Task emplace(C&& callable);
 
@@ -303,7 +303,7 @@ class FlowBuilder {
     for details.
     */
     template <typename C,
-      std::enable_if_t<is_cudaflow_task_v<C>, void>* = nullptr
+      std::enable_if_t<is_cudaflow_task<C>::value, void>* = nullptr
     >
     Task emplace(C&& callable);
 
@@ -330,7 +330,7 @@ class FlowBuilder {
     @endcode
     */
     template <typename C, typename D,
-      std::enable_if_t<is_cudaflow_task_v<C>, void>* = nullptr
+      std::enable_if_t<is_cudaflow_task<C>::value, void>* = nullptr
     >
     Task emplace_on(C&& callable, D&& device);
 
@@ -357,7 +357,7 @@ class FlowBuilder {
     });
     @endcode
     */
-    template <typename C, std::enable_if_t<is_syclflow_task_v<C>, void>* = nullptr>
+    template <typename C, std::enable_if_t<is_syclflow_task<C>::value, void>* = nullptr>
     Task emplace(C&& callable);
 
     /**
@@ -386,7 +386,7 @@ class FlowBuilder {
     @endcode
     */
     template <typename C, typename Q,
-      std::enable_if_t<is_syclflow_task_v<C>, void>* = nullptr
+      std::enable_if_t<is_syclflow_task<C>::value, void>* = nullptr
     >
     Task emplace_on(C&& callable, Q&& queue);
 
@@ -412,7 +412,7 @@ class FlowBuilder {
     Please refer to @ref RuntimeTasking for details.
     */
     template <typename C,
-      std::enable_if_t<is_runtime_task_v<C>, void>* = nullptr
+      std::enable_if_t<is_runtime_task<C>::value, void>* = nullptr
     >
     Task emplace(C&& callable);
 
@@ -738,7 +738,7 @@ inline FlowBuilder::FlowBuilder(Graph& graph) :
 }
 
 // Function: emplace
-template <typename C, std::enable_if_t<is_static_task_v<C>, void>*>
+template <typename C, std::enable_if_t<is_static_task<C>::value, void>*>
 Task FlowBuilder::emplace(C&& c) {
   return Task(_graph._emplace_back(
     std::in_place_type_t<Node::Static>{}, std::forward<C>(c)
@@ -746,7 +746,7 @@ Task FlowBuilder::emplace(C&& c) {
 }
 
 // Function: emplace
-template <typename C, std::enable_if_t<is_dynamic_task_v<C>, void>*>
+template <typename C, std::enable_if_t<is_dynamic_task<C>::value, void>*>
 Task FlowBuilder::emplace(C&& c) {
   return Task(_graph._emplace_back(
     std::in_place_type_t<Node::Dynamic>{}, std::forward<C>(c)
@@ -754,7 +754,7 @@ Task FlowBuilder::emplace(C&& c) {
 }
 
 // Function: emplace
-template <typename C, std::enable_if_t<is_condition_task_v<C>, void>*>
+template <typename C, std::enable_if_t<is_condition_task<C>::value, void>*>
 Task FlowBuilder::emplace(C&& c) {
   return Task(_graph._emplace_back(
     std::in_place_type_t<Node::Condition>{}, std::forward<C>(c)
@@ -762,7 +762,7 @@ Task FlowBuilder::emplace(C&& c) {
 }
 
 // Function: emplace
-template <typename C, std::enable_if_t<is_multi_condition_task_v<C>, void>*>
+template <typename C, std::enable_if_t<is_multi_condition_task<C>::value, void>*>
 Task FlowBuilder::emplace(C&& c) {
   return Task(_graph._emplace_back(
     std::in_place_type_t<Node::MultiCondition>{}, std::forward<C>(c)
@@ -770,7 +770,7 @@ Task FlowBuilder::emplace(C&& c) {
 }
 
 // Function: emplace
-template <typename C, std::enable_if_t<is_runtime_task_v<C>, void>*>
+template <typename C, std::enable_if_t<is_runtime_task<C>::value, void>*>
 Task FlowBuilder::emplace(C&& c) {
   return Task(_graph._emplace_back(
     std::in_place_type_t<Node::Runtime>{}, std::forward<C>(c)

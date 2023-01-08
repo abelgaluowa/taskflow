@@ -104,10 +104,10 @@ inline const char* to_string(TaskType type) {
 A static task is a callable object constructible from std::function<void()>.
 */
 template <typename C>
-constexpr bool is_static_task_v =
-  std::is_invocable_r_v<void, C> &&
-  !std::is_invocable_r_v<int, C> &&
-  !std::is_invocable_r_v<tf::SmallVector<int>, C>;
+struct is_static_task: std::integral_constant<bool,
+    std::is_invocable_r_v<void, C> &&
+    !std::is_invocable_r_v<int, C> &&
+    !std::is_invocable_r_v<tf::SmallVector<int>, C>> {};
 
 /**
 @brief determines if a callable is a dynamic task
@@ -115,7 +115,7 @@ constexpr bool is_static_task_v =
 A dynamic task is a callable object constructible from std::function<void(Subflow&)>.
 */
 template <typename C>
-constexpr bool is_dynamic_task_v = std::is_invocable_r_v<void, C, Subflow&>;
+struct is_dynamic_task: std::integral_constant<bool, std::is_invocable_r_v<void, C, Subflow&>> {};
 
 /**
 @brief determines if a callable is a condition task
@@ -123,7 +123,7 @@ constexpr bool is_dynamic_task_v = std::is_invocable_r_v<void, C, Subflow&>;
 A condition task is a callable object constructible from std::function<int()>.
 */
 template <typename C>
-constexpr bool is_condition_task_v = std::is_invocable_r_v<int, C>;
+struct is_condition_task: std::integral_constant<bool, std::is_invocable_r_v<int, C>> {};
 
 /**
 @brief determines if a callable is a multi-condition task
@@ -132,8 +132,7 @@ A multi-condition task is a callable object constructible from
 std::function<tf::SmallVector<int>()>.
 */
 template <typename C>
-constexpr bool is_multi_condition_task_v =
-  std::is_invocable_r_v<SmallVector<int>, C>;
+struct is_multi_condition_task: std::integral_constant<bool, std::is_invocable_r_v<SmallVector<int>, C>> {};
 
 /**
 @brief determines if a callable is a %cudaFlow task
@@ -142,8 +141,9 @@ A cudaFlow task is a callable object constructible from
 std::function<void(tf::cudaFlow&)> or std::function<void(tf::cudaFlowCapturer&)>.
 */
 template <typename C>
-constexpr bool is_cudaflow_task_v = std::is_invocable_r_v<void, C, cudaFlow&> ||
-                                    std::is_invocable_r_v<void, C, cudaFlowCapturer&>;
+struct is_cudaflow_task: std::integral_constant<bool,
+    std::is_invocable_r_v<void, C, cudaFlow&> ||
+    std::is_invocable_r_v<void, C, cudaFlowCapturer&>> {};
 
 /**
 @brief determines if a callable is a %syclFlow task
@@ -152,7 +152,7 @@ A syclFlow task is a callable object constructible from
 std::function<void(tf::syclFlow&)>.
 */
 template <typename C>
-constexpr bool is_syclflow_task_v = std::is_invocable_r_v<void, C, syclFlow&>;
+struct is_syclflow_task: std::integral_constant<bool, std::is_invocable_r_v<void, C, syclFlow&>> {};
 
 /**
 @brief determines if a callable is a runtime task
@@ -161,7 +161,7 @@ A runtime task is a callable object constructible from
 std::function<void(tf::Runtime&)>.
 */
 template <typename C>
-constexpr bool is_runtime_task_v = std::is_invocable_r_v<void, C, Runtime&>;
+struct is_runtime_task: std::integral_constant<bool, std::is_invocable_r_v<void, C, Runtime&>> {};
 
 // ----------------------------------------------------------------------------
 // Task
@@ -592,22 +592,22 @@ inline void Task::dump(std::ostream& os) const {
 template <typename C>
 Task& Task::work(C&& c) {
 
-  if constexpr(is_static_task_v<C>) {
+  if constexpr(is_static_task<C>::value) {
     _node->_handle.emplace<Node::Static>(std::forward<C>(c));
   }
-  else if constexpr(is_dynamic_task_v<C>) {
+  else if constexpr(is_dynamic_task<C>::value) {
     _node->_handle.emplace<Node::Dynamic>(std::forward<C>(c));
   }
-  else if constexpr(is_condition_task_v<C>) {
+  else if constexpr(is_condition_task<C>::value) {
     _node->_handle.emplace<Node::Condition>(std::forward<C>(c));
   }
-  else if constexpr(is_multi_condition_task_v<C>) {
+  else if constexpr(is_multi_condition_task<C>::value) {
     _node->_handle.emplace<Node::MultiCondition>(std::forward<C>(c));
   }
-  else if constexpr(is_cudaflow_task_v<C>) {
+  else if constexpr(is_cudaflow_task<C>::value) {
     _node->_handle.emplace<Node::cudaFlow>(std::forward<C>(c));
   }
-  else if constexpr(is_runtime_task_v<C>) {
+  else if constexpr(is_runtime_task<C>::value) {
     _node->_handle.emplace<Node::Runtime>(std::forward<C>(c));
   }
   else {

@@ -1675,7 +1675,7 @@ inline void cudaFlow::offload() {
 
 // FlowBuilder::emplace_on
 template <typename C, typename D,
-  std::enable_if_t<is_cudaflow_task_v<C>, void>*
+  std::enable_if_t<is_cudaflow_task<C>::value, void>*
 >
 Task FlowBuilder::emplace_on(C&& c, D&& d) {
   auto n = _graph._emplace_back(
@@ -1690,7 +1690,7 @@ Task FlowBuilder::emplace_on(C&& c, D&& d) {
 }
 
 // FlowBuilder::emplace
-template <typename C, std::enable_if_t<is_cudaflow_task_v<C>, void>*>
+template <typename C, std::enable_if_t<is_cudaflow_task<C>::value, void>*>
 Task FlowBuilder::emplace(C&& c) {
   return emplace_on(std::forward<C>(c), tf::cuda_get_device());
 }
@@ -1700,7 +1700,7 @@ Task FlowBuilder::emplace(C&& c) {
 // ############################################################################
 
 // Procedure: _invoke_cudaflow_task_entry
-template <typename C, std::enable_if_t<is_cudaflow_task_v<C>, void>*>
+template <typename C, std::enable_if_t<is_cudaflow_task<C>::value, void>*>
 void Executor::_invoke_cudaflow_task_entry(Node* node, C&& c) {
 
   using T = std::conditional_t<

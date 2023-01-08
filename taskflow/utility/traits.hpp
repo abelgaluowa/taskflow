@@ -205,7 +205,7 @@ void visit_tuple(Func func, Tuple& tup, size_t idx) {
     std::invoke(func, std::get<N>(tup));
     return;
   }
-  if constexpr (N + 1 < std::tuple_size_v<Tuple>) {
+  if constexpr (N + 1 < std::tuple_size<Tuple>::value) {
     return visit_tuple<Func, Tuple, N + 1>(func, tup, idx);
   }
 }

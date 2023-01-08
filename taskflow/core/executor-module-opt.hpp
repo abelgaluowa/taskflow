@@ -671,12 +671,12 @@ class Executor {
     void _invoke_runtime_task(Worker&, Node*);
 
     template <typename C,
-      std::enable_if_t<is_cudaflow_task_v<C>, void>* = nullptr
+      std::enable_if_t<is_cudaflow_task<C>::value, void>* = nullptr
     >
     void _invoke_cudaflow_task_entry(Node*, C&&);
 
     template <typename C, typename Q,
-      std::enable_if_t<is_syclflow_task_v<C>, void>* = nullptr
+      std::enable_if_t<is_syclflow_task<C>::value, void>* = nullptr
     >
     void _invoke_syclflow_task_entry(Node*, C&&, Q&);
 };
@@ -2001,7 +2001,7 @@ template <typename C>
 void Runtime::run(C&& callable) {
 
   // dynamic task (subflow)
-  if constexpr(is_dynamic_task_v<C>) {
+  if constexpr(is_dynamic_task<C>::value) {
     Graph graph;
     Subflow sf(_executor, _worker, _parent, graph);
     callable(sf);
