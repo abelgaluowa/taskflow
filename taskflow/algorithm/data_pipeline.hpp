@@ -276,7 +276,7 @@ class DataPipeline {
   @brief internal storage type for each data token (default std::variant)
   */
   using data_t = unique_variant_t<std::variant<std::conditional_t<
-    std::is_void_v<typename Ps::output_t>, 
+    std::is_void<typename Ps::output_t>::value,
     std::monostate, 
     std::decay_t<typename Ps::output_t>>...
   >>;
@@ -493,7 +493,7 @@ void DataPipeline<Ps...>::_on_pipe(Pipeflow& pf, Runtime&) {
     // first pipe
     if constexpr (std::is_invocable_v<callable_t, Pipeflow&>) {
       // [](tf::Pipeflow&) -> void {}, i.e., we only have one pipe
-      if constexpr (std::is_void_v<output_t>) {
+      if constexpr (std::is_void<output_t>::value) {
         pipe._callable(pf);
       // [](tf::Pipeflow&) -> output_t {}
       } else {
@@ -503,7 +503,7 @@ void DataPipeline<Ps...>::_on_pipe(Pipeflow& pf, Runtime&) {
     // other pipes without pipeflow in the second argument
     else if constexpr (std::is_invocable_v<callable_t, input_t&>) {
       // [](input_t&) -> void {}, i.e., the last pipe
-      if constexpr (std::is_void_v<output_t>) {
+      if constexpr (std::is_void<output_t>::value) {
         pipe._callable(std::get<input_t>(_buffer[pf._line].data));
       // [](input_t&) -> output_t {}
       } else {
@@ -515,7 +515,7 @@ void DataPipeline<Ps...>::_on_pipe(Pipeflow& pf, Runtime&) {
     // other pipes with pipeflow in the second argument
     else if constexpr (std::is_invocable_v<callable_t, input_t&, Pipeflow&>) {
       // [](input_t&, tf::Pipeflow&) -> void {}
-      if constexpr (std::is_void_v<output_t>) {
+      if constexpr (std::is_void<output_t>::value) {
         pipe._callable(std::get<input_t>(_buffer[pf._line].data), pf);
       // [](input_t&, tf::Pipeflow&) -> output_t {}
       } else {
