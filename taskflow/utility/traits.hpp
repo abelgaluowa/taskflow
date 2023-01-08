@@ -173,15 +173,15 @@ struct stateful_index {
   using TS = std::decay_t<unwrap_ref_decay_t<S>>;
 
   static_assert(
-    std::is_integral_v<TB>, "decayed beg index must be an integral type"
+    std::is_integral<TB>::value, "decayed beg index must be an integral type"
   );
 
   static_assert(
-    std::is_integral_v<TE>, "decayed end index must be an integral type"
+    std::is_integral<TE>::value, "decayed end index must be an integral type"
   );
 
   static_assert(
-    std::is_integral_v<TS>, "decayed step must be an integral type"
+    std::is_integral<TS>::value, "decayed step must be an integral type"
   );
 
   static_assert(

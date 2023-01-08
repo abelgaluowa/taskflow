@@ -6,7 +6,7 @@ namespace tf {
 
 // rounds the given 64-bit unsigned integer to the nearest power of 2
 template <typename T, std::enable_if_t<
-  (std::is_unsigned_v<std::decay_t<T>> && sizeof(T) == 8) , void
+  (std::is_unsigned<std::decay_t<T>>::value && sizeof(T) == 8) , void
 >* = nullptr>
 constexpr T next_pow2(T x) {
   if(x == 0) return 1;
@@ -23,7 +23,7 @@ constexpr T next_pow2(T x) {
 
 // rounds the given 32-bit unsigned integer to the nearest power of 2
 template <typename T, std::enable_if_t<
-  (std::is_unsigned_v<std::decay_t<T>> && sizeof(T) == 4), void
+  (std::is_unsigned<std::decay_t<T>>::value && sizeof(T) == 4), void
 >* = nullptr>
 constexpr T next_pow2(T x) {
   if(x == 0) return 1;
@@ -39,7 +39,7 @@ constexpr T next_pow2(T x) {
 
 // checks if the given number if a power of 2
 template <typename T, std::enable_if_t<
-  std::is_integral_v<std::decay_t<T>>, void>* = nullptr
+  std::is_integral<std::decay_t<T>>::value, void>* = nullptr
 >
 constexpr bool is_pow2(const T& x) {
   return x && (!(x&(x-1)));
@@ -47,7 +47,7 @@ constexpr bool is_pow2(const T& x) {
 
 //// finds the ceil of x divided by b
 //template <typename T, std::enable_if_t<
-//  std::is_integral_v<std::decay_t<T>>, void>* = nullptr
+//  std::is_integral<std::decay_t<T>>, void>* = nullptr
 //>
 //constexpr T ceil(const T& x, const T& y) {
 //  //return (x + y - 1) / y;
@@ -115,7 +115,7 @@ void sort3(Iter a, Iter b, Iter c, Compare comp) {
 /**
 @brief generates a program-wise unique id of the give type (thread-safe)
 */
-template <typename T, std::enable_if_t<std::is_integral_v<T>, void>* = nullptr>
+template <typename T, std::enable_if_t<std::is_integral<T>::value, void>* = nullptr>
 T unique_id() {
   static std::atomic<T> counter{0};
   return counter.fetch_add(1, std::memory_order_relaxed);
