@@ -642,7 +642,7 @@ template <typename T>
 bool Future<T>::cancel() {
   return std::visit([](auto&& arg){
     using P = std::decay_t<decltype(arg)>;
-    if constexpr(std::is_same_v<P, std::monostate>) {
+    if constexpr(std::is_same<P, std::monostate>::value) {
       return false;
     }
     else {

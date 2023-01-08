@@ -13,7 +13,7 @@ constexpr size_t parallel_sort_cutoff() {
 
   constexpr size_t object_size = sizeof(value_type);
 
-  if constexpr(std::is_same_v<value_type, std::string>) {
+  if constexpr(std::is_same<value_type, std::string>::value) {
     return 65536 / sizeof(std::string);
   }
   else {

@@ -156,7 +156,7 @@ struct stateful_iterator {
   using TB = std::decay_t<unwrap_ref_decay_t<B>>;
   using TE = std::decay_t<unwrap_ref_decay_t<E>>;
 
-  static_assert(std::is_same_v<TB, TE>, "decayed iterator types must match");
+  static_assert(std::is_same<TB, TE>::value, "decayed iterator types must match");
 
   using type = TB;
 };
@@ -185,7 +185,7 @@ struct stateful_index {
   );
 
   static_assert(
-    std::is_same_v<TB, TE> && std::is_same_v<TE, TS>,
+    std::is_same<TB, TE>::value && std::is_same<TE, TS>::value,
     "decayed index and step types must match"
   );
 
@@ -244,7 +244,7 @@ struct filter_duplicates { using type = T; };
 
 template <template <typename...> class C, typename... Ts, typename U, typename... Us>
 struct filter_duplicates<C<Ts...>, U, Us...>
-    : std::conditional_t<(std::is_same_v<U, Ts> || ...)
+    : std::conditional_t<(std::is_same<U, Ts>::value || ...)
                        , filter_duplicates<C<Ts...>, Us...>
                        , filter_duplicates<C<Ts..., U>, Us...>> {};
 

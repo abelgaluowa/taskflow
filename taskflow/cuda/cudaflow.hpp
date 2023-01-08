@@ -325,7 +325,7 @@ class cudaFlow {
     to a target location. Direction can be arbitrary among CPUs and GPUs.
     */
     template <typename T,
-      std::enable_if_t<!std::is_same_v<T, void>, void>* = nullptr
+      std::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
     >
     cudaTask copy(T* tgt, const T* src, size_t num);
 
@@ -339,7 +339,7 @@ class cudaFlow {
     source/destination memory.
     */
     template <typename T,
-      std::enable_if_t<!std::is_same_v<T, void>, void>* = nullptr
+      std::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
     >
     void copy(cudaTask task, T* tgt, const T* src, size_t num);
 
@@ -1347,7 +1347,7 @@ cudaTask cudaFlow::fill(T* dst, T value, size_t count) {
 // Function: copy
 template <
   typename T,
-  std::enable_if_t<!std::is_same_v<T, void>, void>*
+  std::enable_if_t<!std::is_same<T, void>::value, void>*
 >
 cudaTask cudaFlow::copy(T* tgt, const T* src, size_t num) {
 
@@ -1449,7 +1449,7 @@ void cudaFlow::kernel(
 }
 
 // Function: update copy parameters
-template <typename T, std::enable_if_t<!std::is_same_v<T, void>, void>*>
+template <typename T, std::enable_if_t<!std::is_same<T, void>::value, void>*>
 void cudaFlow::copy(cudaTask task, T* tgt, const T* src, size_t num) {
 
   if(task.type() != cudaTaskType::MEMCPY) {

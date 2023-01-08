@@ -162,7 +162,7 @@ class syclFlow {
     location to a target memory location.
     */
     template <typename T,
-      std::enable_if_t<!std::is_same_v<T, void>, void>* = nullptr
+      std::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
     >
     syclTask copy(T* target, const T* source, size_t count);
     
@@ -384,7 +384,7 @@ class syclFlow {
     Similar to tf::syclFlow::copy but operates on an existing task.
     */
     template <typename T,
-      std::enable_if_t<!std::is_same_v<T, void>, void>* = nullptr
+      std::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
     >
     void copy(syclTask task, T* target, const T* source, size_t count);
     
@@ -470,7 +470,7 @@ syclTask syclFlow::fill(void* ptr, const T& pattern, size_t count) {
 
 // Function: copy
 template <typename T,
-  std::enable_if_t<!std::is_same_v<T, void>, void>*
+  std::enable_if_t<!std::is_same<T, void>::value, void>*
 >
 syclTask syclFlow::copy(T* target, const T* source, size_t count) {
   return on([=](sycl::handler& h){ h.memcpy(target, source, count*sizeof(T)); });
@@ -608,7 +608,7 @@ void syclFlow::fill(
 
 // Function: copy
 template <typename T,
-  std::enable_if_t<!std::is_same_v<T, void>, void>*
+  std::enable_if_t<!std::is_same<T, void>::value, void>*
 >
 void syclFlow::copy(
   syclTask task, T* target, const T* source, size_t count

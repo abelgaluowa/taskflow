@@ -825,7 +825,7 @@ auto Executor::named_async(const std::string& name, F&& f, ArgsT&&... args) {
   _increment_topology();
 
   using T = std::invoke_result_t<F, ArgsT...>;
-  using R = std::conditional_t<std::is_same_v<T, void>, void, std::optional<T>>;
+  using R = std::conditional_t<std::is_same<T, void>::value, void, std::optional<T>>;
 
   std::promise<R> p;
 
@@ -837,7 +837,7 @@ auto Executor::named_async(const std::string& name, F&& f, ArgsT&&... args) {
     std::in_place_type_t<Node::Async>{},
     [p=make_moc(std::move(p)), f=std::forward<F>(f), args...]
     (bool cancel) mutable {
-      if constexpr(std::is_same_v<R, void>) {
+      if constexpr(std::is_same<R, void>::value) {
         if(!cancel) {
           f(args...);
         }
@@ -2024,7 +2024,7 @@ auto Subflow::_named_async(
   _parent->_join_counter.fetch_add(1);
 
   using T = std::invoke_result_t<F, ArgsT...>;
-  using R = std::conditional_t<std::is_same_v<T, void>, void, std::optional<T>>;
+  using R = std::conditional_t<std::is_same<T, void>::value, void, std::optional<T>>;
 
   std::promise<R> p;
 
@@ -2036,7 +2036,7 @@ auto Subflow::_named_async(
     std::in_place_type_t<Node::Async>{},
     [p=make_moc(std::move(p)), f=std::forward<F>(f), args...]
     (bool cancel) mutable {
-      if constexpr(std::is_same_v<R, void>) {
+      if constexpr(std::is_same<R, void>::value) {
         if(!cancel) {
           f(args...);
         }

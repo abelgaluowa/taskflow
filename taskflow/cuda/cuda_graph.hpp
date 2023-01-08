@@ -16,7 +16,7 @@ namespace tf {
 @brief gets the memcpy node parameter of a copy task
 */
 template <typename T,
-  std::enable_if_t<!std::is_same_v<T, void>, void>* = nullptr
+  std::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
 >
 cudaMemcpy3DParms cuda_get_copy_parms(T* tgt, const T* src, size_t num) {
 

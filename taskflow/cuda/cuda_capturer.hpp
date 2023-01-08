@@ -228,7 +228,7 @@ class cudaFlowCapturer {
     to a target location. Direction can be arbitrary among CPUs and GPUs.
     */
     template <typename T,
-      std::enable_if_t<!std::is_same_v<T, void>, void>* = nullptr
+      std::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
     >
     cudaTask copy(T* tgt, const T* src, size_t num);
 
@@ -239,7 +239,7 @@ class cudaFlowCapturer {
     an existing task.
     */
     template <typename T,
-      std::enable_if_t<!std::is_same_v<T, void>, void>* = nullptr
+      std::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
     >
     void copy(cudaTask task, T* tgt, const T* src, size_t num);
 
@@ -1130,7 +1130,7 @@ inline cudaTask cudaFlowCapturer::memcpy(
 }
 
 // Function: copy
-template <typename T, std::enable_if_t<!std::is_same_v<T, void>, void>*>
+template <typename T, std::enable_if_t<!std::is_same<T, void>::value, void>*>
 cudaTask cudaFlowCapturer::copy(T* tgt, const T* src, size_t num) {
   return on([tgt, src, num] (cudaStream_t stream) mutable {
     TF_CHECK_CUDA(
@@ -1241,7 +1241,7 @@ inline void cudaFlowCapturer::memcpy(
 
 // Function: copy
 template <typename T,
-  std::enable_if_t<!std::is_same_v<T, void>, void>*
+  std::enable_if_t<!std::is_same<T, void>::value, void>*
 >
 void cudaFlowCapturer::copy(
   cudaTask task, T* tgt, const T* src, size_t num
