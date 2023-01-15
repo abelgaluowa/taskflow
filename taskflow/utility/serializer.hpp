@@ -196,7 +196,7 @@ class SizeTag {
 
   public:
 
-    using type = std::conditional_t<std::is_lvalue_reference_v<T>, T, std::decay_t<T>>;
+    using type = std::conditional_t<std::is_lvalue_reference<T>::value, T, std::decay_t<T>>;
 
     SizeTag(T&& item) : _item(std::forward<T>(item)) {}
 
@@ -231,8 +231,8 @@ class MapItem {
 
   public:
 
-    using KeyType = std::conditional_t <std::is_lvalue_reference_v<KeyT>, KeyT, std::decay_t<KeyT>>;
-    using ValueType = std::conditional_t <std::is_lvalue_reference_v<ValueT>, ValueT, std::decay_t<ValueT>>;
+    using KeyType = std::conditional_t <std::is_lvalue_reference<KeyT>::value, KeyT, std::decay_t<KeyT>>;
+    using ValueType = std::conditional_t <std::is_lvalue_reference<ValueT>::value, ValueT, std::decay_t<ValueT>>;
 
     MapItem(KeyT&& k, ValueT&& v) : _key(std::forward<KeyT>(k)), _value(std::forward<ValueT>(v)) {}
     MapItem& operator = (const MapItem&) = delete;
@@ -264,8 +264,8 @@ MapItem<KeyT, ValueT> make_kv_pair(KeyT&& k, ValueT&& v) {
 
 template <typename T>
 struct is_default_serializable : std::integral_constant<bool,
-    std::is_arithmetic_v<T>    ||
-    std::is_enum_v<T>          ||
+    std::is_arithmetic<T>::value    ||
+    std::is_enum<T>::value          ||
     is_std_basic_string<T>::value   ||
     is_std_vector<T>::value         ||
     is_std_deque<T>::value          ||
@@ -304,7 +304,7 @@ class Serializer {
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<std::is_arithmetic_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<std::is_arithmetic<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
@@ -354,7 +354,7 @@ class Serializer {
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<std::is_enum_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<std::is_enum<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
@@ -406,7 +406,7 @@ SizeType Serializer<Stream, SizeType>::operator() (T&&... items) {
 // arithmetic data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<std::is_arithmetic_v<std::decay_t<T>>, void>*
+  std::enable_if_t<std::is_arithmetic<std::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   _stream.write(reinterpret_cast<const char*>(std::addressof(t)), sizeof(t));
@@ -439,7 +439,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 
   auto sz = _save(make_size_tag(t.size()));
 
-  if constexpr (std::is_arithmetic_v<typename U::value_type>) {
+  if constexpr (std::is_arithmetic<typename U::value_type>::value) {
     _stream.write(
       reinterpret_cast<const char*>(t.data()),
       t.size() * sizeof(typename U::value_type)
@@ -514,7 +514,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // enum data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<std::is_enum_v<std::decay_t<T>>, void>*
+  std::enable_if_t<std::is_enum<std::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   using U = std::decay_t<T>;
@@ -590,7 +590,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 
   SizeType sz;
 
-  if constexpr(std::is_arithmetic_v<typename U::value_type>) {
+  if constexpr(std::is_arithmetic<typename U::value_type>::value) {
     _stream.write(reinterpret_cast<const char*>(t.data()), sizeof(t));
     sz = sizeof(t);
   }
@@ -619,8 +619,8 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 
 template <typename T>
 struct is_default_deserializable: std::integral_constant<bool,
-      std::is_arithmetic_v<T>    ||
-      std::is_enum_v<T>          ||
+      std::is_arithmetic<T>::value    ||
+      std::is_enum<T>::value          ||
       is_std_basic_string<T>::value   ||
       is_std_vector<T>::value         ||
       is_std_deque<T>::value          ||
@@ -667,7 +667,7 @@ class Deserializer {
     SizeType _variant_helper(size_t, std::variant<ArgsT...>&);
 
     template <typename T,
-      std::enable_if_t<std::is_arithmetic_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<std::is_arithmetic<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
@@ -712,7 +712,7 @@ class Deserializer {
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<std::is_enum_v<std::decay_t<T>>, void>* = nullptr
+      std::enable_if_t<std::is_enum<std::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
@@ -792,7 +792,7 @@ SizeType Deserializer<Stream, SizeType>::_variant_helper(size_t i, std::variant<
 // arithmetic data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<std::is_arithmetic_v<std::decay_t<T>>, void>*
+  std::enable_if_t<std::is_arithmetic<std::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
   _stream.read(reinterpret_cast<char*>(std::addressof(t)), sizeof(t));
@@ -826,7 +826,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
   auto sz = _load(make_size_tag(num_data));
 
-  if constexpr(std::is_arithmetic_v<typename U::value_type>) {
+  if constexpr(std::is_arithmetic<typename U::value_type>::value) {
     t.resize(num_data);
     _stream.read(reinterpret_cast<char*>(t.data()), num_data * sizeof(typename U::value_type));
     sz += num_data * sizeof(typename U::value_type);
@@ -960,7 +960,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // enum data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<std::is_enum_v<std::decay_t<T>>, void>*
+  std::enable_if_t<std::is_enum<std::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
   using U = std::decay_t<T>;
@@ -1057,7 +1057,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
   SizeType sz;
 
-  if constexpr(std::is_arithmetic_v<typename U::value_type>) {
+  if constexpr(std::is_arithmetic<typename U::value_type>::value) {
     _stream.read(reinterpret_cast<char*>(t.data()), sizeof(t));
     sz = sizeof(t);
   }

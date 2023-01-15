@@ -1034,7 +1034,7 @@ template<typename Observer, typename... ArgsT>
 std::shared_ptr<Observer> Executor::make_observer(ArgsT&&... args) {
 
   static_assert(
-    std::is_base_of_v<ObserverInterface, Observer>,
+    std::is_base_of<ObserverInterface, Observer>::value,
     "Observer must be derived from ObserverInterface"
   );
 
@@ -1053,7 +1053,7 @@ template <typename Observer>
 void Executor::remove_observer(std::shared_ptr<Observer> ptr) {
 
   static_assert(
-    std::is_base_of_v<ObserverInterface, Observer>,
+    std::is_base_of<ObserverInterface, Observer>::value,
     "Observer must be derived from ObserverInterface"
   );
 

@@ -110,7 +110,7 @@ template <typename T, unsigned MAX_PRIORITY = static_cast<unsigned>(TaskPriority
 class TaskQueue {
   
   static_assert(MAX_PRIORITY > 0, "MAX_PRIORITY must be at least one");
-  static_assert(std::is_pointer_v<T>, "T must be a pointer type");
+  static_assert(std::is_pointer<T>::value, "T must be a pointer type");
 
   struct Array {
 
