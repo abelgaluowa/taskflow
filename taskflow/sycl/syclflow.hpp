@@ -89,7 +89,7 @@ class syclFlow {
     required to correctly process data on a device using a kernel.
     */
     template <typename F, std::enable_if_t<
-      std::is_invocable_r_v<void, F, sycl::handler&>, void>* = nullptr
+      absl::base_internal::is_invocable_r<void, F, sycl::handler&>::value, void>* = nullptr
     >
     syclTask on(F&& func);
     
@@ -99,7 +99,7 @@ class syclFlow {
     Similar to tf::syclFlow::on but operates on an existing task.
     */
     template <typename F, std::enable_if_t<
-      std::is_invocable_r_v<void, F, sycl::handler&>, void>* = nullptr
+      absl::base_internal::is_invocable_r<void, F, sycl::handler&>::value, void>* = nullptr
     >
     void on(syclTask task, F&& func);
     
@@ -478,7 +478,7 @@ syclTask syclFlow::copy(T* target, const T* source, size_t count) {
 
 // Function: on
 template <typename F, std::enable_if_t<
-  std::is_invocable_r_v<void, F, sycl::handler&>, void>*
+  absl::base_internal::is_invocable_r<void, F, sycl::handler&>::value, void>*
 >
 syclTask syclFlow::on(F&& f) {
   auto node = _graph.emplace_back(_graph, 
@@ -577,7 +577,7 @@ inline void syclFlow::offload() {
 
 // Function: on
 template <typename F, std::enable_if_t<
-  std::is_invocable_r_v<void, F, sycl::handler&>, void>*
+  absl::base_internal::is_invocable_r<void, F, sycl::handler&>::value, void>*
 >
 void syclFlow::on(syclTask task, F&& f) {
   std::get_if<syclNode::CGH>(&task._node->_handle)->work = 

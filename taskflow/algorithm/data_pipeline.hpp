@@ -491,7 +491,7 @@ void DataPipeline<Ps...>::_on_pipe(Pipeflow& pf, Runtime&) {
     using output_t    = std::decay_t<typename data_pipe_t::output_t>;
     
     // first pipe
-    if constexpr (std::is_invocable_v<callable_t, Pipeflow&>) {
+    if constexpr (absl::base_internal::is_invocable<callable_t, Pipeflow&>::value) {
       // [](tf::Pipeflow&) -> void {}, i.e., we only have one pipe
       if constexpr (std::is_void<output_t>::value) {
         pipe._callable(pf);
@@ -501,7 +501,7 @@ void DataPipeline<Ps...>::_on_pipe(Pipeflow& pf, Runtime&) {
       }
     }
     // other pipes without pipeflow in the second argument
-    else if constexpr (std::is_invocable_v<callable_t, input_t&>) {
+    else if constexpr (absl::base_internal::is_invocable<callable_t, input_t&>::value) {
       // [](input_t&) -> void {}, i.e., the last pipe
       if constexpr (std::is_void<output_t>::value) {
         pipe._callable(std::get<input_t>(_buffer[pf._line].data));
@@ -513,7 +513,7 @@ void DataPipeline<Ps...>::_on_pipe(Pipeflow& pf, Runtime&) {
       }
     }
     // other pipes with pipeflow in the second argument
-    else if constexpr (std::is_invocable_v<callable_t, input_t&, Pipeflow&>) {
+    else if constexpr (absl::base_internal::is_invocable<callable_t, input_t&, Pipeflow&>::value) {
       // [](input_t&, tf::Pipeflow&) -> void {}
       if constexpr (std::is_void<output_t>::value) {
         pipe._callable(std::get<input_t>(_buffer[pf._line].data), pf);

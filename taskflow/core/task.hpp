@@ -2,6 +2,8 @@
 
 #include "graph.hpp"
 
+#include "absl/base/internal/invoke.h"
+
 /**
 @file task.hpp
 @brief task include file
@@ -105,9 +107,9 @@ A static task is a callable object constructible from std::function<void()>.
 */
 template <typename C>
 struct is_static_task: std::integral_constant<bool,
-    std::is_invocable_r_v<void, C> &&
-    !std::is_invocable_r_v<int, C> &&
-    !std::is_invocable_r_v<tf::SmallVector<int>, C>> {};
+    absl::base_internal::is_invocable_r<void, C>::value &&
+    !absl::base_internal::is_invocable_r<int, C>::value &&
+    !absl::base_internal::is_invocable_r<tf::SmallVector<int>, C>::value>{};
 
 /**
 @brief determines if a callable is a dynamic task
@@ -115,7 +117,7 @@ struct is_static_task: std::integral_constant<bool,
 A dynamic task is a callable object constructible from std::function<void(Subflow&)>.
 */
 template <typename C>
-struct is_dynamic_task: std::integral_constant<bool, std::is_invocable_r_v<void, C, Subflow&>> {};
+struct is_dynamic_task: std::integral_constant<bool, absl::base_internal::is_invocable_r<void, C, Subflow&>::value> {};
 
 /**
 @brief determines if a callable is a condition task
@@ -123,7 +125,7 @@ struct is_dynamic_task: std::integral_constant<bool, std::is_invocable_r_v<void,
 A condition task is a callable object constructible from std::function<int()>.
 */
 template <typename C>
-struct is_condition_task: std::integral_constant<bool, std::is_invocable_r_v<int, C>> {};
+struct is_condition_task: std::integral_constant<bool, absl::base_internal::is_invocable_r<int, C>::value> {};
 
 /**
 @brief determines if a callable is a multi-condition task
@@ -132,7 +134,7 @@ A multi-condition task is a callable object constructible from
 std::function<tf::SmallVector<int>()>.
 */
 template <typename C>
-struct is_multi_condition_task: std::integral_constant<bool, std::is_invocable_r_v<SmallVector<int>, C>> {};
+struct is_multi_condition_task: std::integral_constant<bool, absl::base_internal::is_invocable_r<SmallVector<int>, C>::value> {};
 
 /**
 @brief determines if a callable is a %cudaFlow task
@@ -142,8 +144,8 @@ std::function<void(tf::cudaFlow&)> or std::function<void(tf::cudaFlowCapturer&)>
 */
 template <typename C>
 struct is_cudaflow_task: std::integral_constant<bool,
-    std::is_invocable_r_v<void, C, cudaFlow&> ||
-    std::is_invocable_r_v<void, C, cudaFlowCapturer&>> {};
+    absl::base_internal::is_invocable_r<void, C, cudaFlow&>::value ||
+    absl::base_internal::is_invocable_r<void, C, cudaFlowCapturer&>::value> {};
 
 /**
 @brief determines if a callable is a %syclFlow task
@@ -152,7 +154,7 @@ A syclFlow task is a callable object constructible from
 std::function<void(tf::syclFlow&)>.
 */
 template <typename C>
-struct is_syclflow_task: std::integral_constant<bool, std::is_invocable_r_v<void, C, syclFlow&>> {};
+struct is_syclflow_task: std::integral_constant<bool, absl::base_internal::is_invocable_r<void, C, syclFlow&>::value> {};
 
 /**
 @brief determines if a callable is a runtime task
@@ -161,7 +163,7 @@ A runtime task is a callable object constructible from
 std::function<void(tf::Runtime&)>.
 */
 template <typename C>
-struct is_runtime_task: std::integral_constant<bool, std::is_invocable_r_v<void, C, Runtime&>> {};
+struct is_runtime_task: std::integral_constant<bool, absl::base_internal::is_invocable_r<void, C, Runtime&>::value> {};
 
 // ----------------------------------------------------------------------------
 // Task

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../taskflow.hpp"
+#include "absl/base/internal/invoke.h"
 
 /**
 @file pipeline.hpp
@@ -661,10 +662,10 @@ template <typename... Ps>
 void Pipeline<Ps...>::_on_pipe(Pipeflow& pf, Runtime& rt) {
   visit_tuple([&](auto&& pipe){
     using callable_t = typename std::decay_t<decltype(pipe)>::callable_t;
-    if constexpr (std::is_invocable_v<callable_t, Pipeflow&>) {
+    if constexpr (absl::base_internal::is_invocable<callable_t, Pipeflow&>::value) {
       pipe._callable(pf);
     }
-    else if constexpr(std::is_invocable_v<callable_t, Pipeflow&, Runtime&>) {
+    else if constexpr(absl::base_internal::is_invocable<callable_t, Pipeflow&, Runtime&>::value) {
       pipe._callable(pf, rt);
     }
     else {
@@ -1404,10 +1405,10 @@ void ScalablePipeline<P>::_on_pipe(Pipeflow& pf, Runtime& rt) {
     
   using callable_t = typename pipe_t::callable_t;
 
-  if constexpr (std::is_invocable_v<callable_t, Pipeflow&>) {
+  if constexpr (absl::base_internal::is_invocable<callable_t, Pipeflow&>::value) {
     _pipes[pf._pipe]->_callable(pf);
   }
-  else if constexpr(std::is_invocable_v<callable_t, Pipeflow&, Runtime&>) {
+  else if constexpr(absl::base_internal::is_invocable<callable_t, Pipeflow&, Runtime&>::value) {
     _pipes[pf._pipe]->_callable(pf, rt);
   }
   else {

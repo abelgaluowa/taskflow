@@ -156,7 +156,7 @@ class cudaFlowCapturer {
     a sequence of CUDA operations defined in the callable.
     */
     template <typename C, std::enable_if_t<
-      std::is_invocable_r_v<void, C, cudaStream_t>, void>* = nullptr
+      absl::base_internal::is_invocable_r<void, C, cudaStream_t>::value, void>* = nullptr
     >
     cudaTask on(C&& callable);
 
@@ -167,7 +167,7 @@ class cudaFlowCapturer {
     on an existing task.
     */
     template <typename C, std::enable_if_t<
-      std::is_invocable_r_v<void, C, cudaStream_t>, void>* = nullptr
+      absl::base_internal::is_invocable_r<void, C, cudaStream_t>::value, void>* = nullptr
     >
     void on(cudaTask task, C&& callable);
 
@@ -1098,7 +1098,7 @@ inline void cudaFlowCapturer::dump(std::ostream& os) const {
 
 // Function: capture
 template <typename C, std::enable_if_t<
-  std::is_invocable_r_v<void, C, cudaStream_t>, void>*
+  absl::base_internal::is_invocable_r<void, C, cudaStream_t>::value, void>*
 >
 cudaTask cudaFlowCapturer::on(C&& callable) {
   auto node = _graph.emplace_back(_graph,
@@ -1213,7 +1213,7 @@ inline void cudaFlowCapturer::offload() {
 
 // Function: on
 template <typename C, std::enable_if_t<
-  std::is_invocable_r_v<void, C, cudaStream_t>, void>*
+  absl::base_internal::is_invocable_r<void, C, cudaStream_t>::value, void>*
 >
 void cudaFlowCapturer::on(cudaTask task, C&& callable) {
 

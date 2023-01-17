@@ -50,6 +50,7 @@ namespace base_internal {
 using std::invoke;
 using std::invoke_result_t;
 using std::is_invocable_r;
+using std::is_invocable;
 
 }  // namespace base_internal
 ABSL_NAMESPACE_END
@@ -231,6 +232,20 @@ struct IsInvocableRImpl<
 // C++11-compatible version of `std::is_invocable_r`.
 template <typename R, typename F, typename... Args>
 using is_invocable_r = IsInvocableRImpl<void, R, F, Args...>;
+
+
+// C++11-compatible version of `std::is_invocable`.
+template<typename AlawaysVoid, typename F, typename... Args>
+struct IsInvocableImpl: std::false_type {};
+
+template<typename F, typename... Args>
+struct IsInvocableImpl<
+    absl::void_t<absl::base_internal::invoke_result_t<F, Args...>>,
+    F, Args...>
+    : std::true_type {};
+
+template<typename F, typename... Args>
+using is_invocable = IsInvocableImpl<void, F, Args...>;
 
 }  // namespace base_internal
 ABSL_NAMESPACE_END

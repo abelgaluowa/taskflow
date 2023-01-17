@@ -1704,7 +1704,7 @@ template <typename C, std::enable_if_t<is_cudaflow_task<C>::value, void>*>
 void Executor::_invoke_cudaflow_task_entry(Node* node, C&& c) {
 
   using T = std::conditional_t<
-    std::is_invocable_r_v<void, C, cudaFlow&>, cudaFlow, cudaFlowCapturer
+    absl::base_internal::is_invocable_r<void, C, cudaFlow&>::value, cudaFlow, cudaFlowCapturer
   >;
 
   auto h = std::get_if<Node::cudaFlow>(&node->_handle);
