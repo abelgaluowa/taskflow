@@ -15,7 +15,7 @@ namespace detail {
 template <typename P, typename I, typename C>
 void cuda_for_each_loop(P&& p, I first, unsigned count, C c) {
 
-  using E = std::decay_t<P>;
+  using E = neo::decay_t<P>;
 
   unsigned B = (count + E::nv - 1) / E::nv;
 
@@ -34,7 +34,7 @@ void cuda_for_each_index_loop(
   P&& p, I first, I inc, unsigned count, C c
 ) {
 
-  using E = std::decay_t<P>;
+  using E = neo::decay_t<P>;
 
   unsigned B = (count + E::nv - 1) / E::nv;
 

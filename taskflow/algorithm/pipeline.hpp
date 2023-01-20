@@ -661,7 +661,7 @@ void Pipeline<Ps...>::reset() {
 template <typename... Ps>
 void Pipeline<Ps...>::_on_pipe(Pipeflow& pf, Runtime& rt) {
   visit_tuple([&](auto&& pipe){
-    using callable_t = typename std::decay_t<decltype(pipe)>::callable_t;
+    using callable_t = typename neo::decay_t<decltype(pipe)>::callable_t;
     if constexpr (absl::base_internal::is_invocable<callable_t, Pipeflow&>::value) {
       pipe._callable(pf);
     }

@@ -184,7 +184,7 @@ void cuda_single_pass_scan(
 ) {
 
   using T = typename std::iterator_traits<O>::value_type;
-  using E = std::decay_t<P>;
+  using E = neo::decay_t<P>;
 
   // Small input specialization. This is the non-recursive branch.
   cuda_kernel<<<1, E::nt, 0, p.stream()>>>([=] __device__ (auto tid, auto bid) {
@@ -238,7 +238,7 @@ void cuda_scan_loop(
   void* ptr
 ) {
 
-  using E = std::decay_t<P>;
+  using E = neo::decay_t<P>;
   using T = typename std::iterator_traits<O>::value_type;
 
   T* buffer = static_cast<T*>(ptr);
@@ -338,7 +338,7 @@ tf::cuda_transform_inclusive_scan, and tf::cuda_transform_exclusive_scan.
 */
 template <typename P, typename T>
 unsigned cuda_scan_buffer_size(unsigned count) {
-  using E = std::decay_t<P>;
+  using E = neo::decay_t<P>;
   unsigned B = (count + E::nv - 1) / E::nv;
   unsigned n = 0;
   for(auto b=B; b>detail::cudaScanRecursionThreshold; b=(b+E::nv-1)/E::nv) {

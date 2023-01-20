@@ -275,10 +275,10 @@ class DataPipeline {
   /**
   @brief internal storage type for each data token (default std::variant)
   */
-  using data_t = unique_variant_t<std::variant<std::conditional_t<
+  using data_t = unique_variant_t<std::variant<neo::conditional_t<
     std::is_void<typename Ps::output_t>::value,
     std::monostate, 
-    std::decay_t<typename Ps::output_t>>...
+    neo::decay_t<typename Ps::output_t>>...
   >>;
 
   /**
@@ -485,10 +485,10 @@ void DataPipeline<Ps...>::_on_pipe(Pipeflow& pf, Runtime&) {
 
   visit_tuple([&](auto&& pipe){
 
-    using data_pipe_t = std::decay_t<decltype(pipe)>;
+    using data_pipe_t = neo::decay_t<decltype(pipe)>;
     using callable_t  = typename data_pipe_t::callable_t;
-    using input_t     = std::decay_t<typename data_pipe_t::input_t>;
-    using output_t    = std::decay_t<typename data_pipe_t::output_t>;
+    using input_t     = neo::decay_t<typename data_pipe_t::input_t>;
+    using output_t    = neo::decay_t<typename data_pipe_t::output_t>;
     
     // first pipe
     if constexpr (absl::base_internal::is_invocable<callable_t, Pipeflow&>::value) {

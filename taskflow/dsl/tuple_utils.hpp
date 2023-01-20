@@ -13,13 +13,13 @@ struct TupleElementByF {
 };
 
 template <template <typename> class F, typename H, typename... Ts>
-struct TupleElementByF<std::tuple<H, Ts...>, F, std::enable_if_t<F<H>::value>> {
+struct TupleElementByF<std::tuple<H, Ts...>, F, neo::enable_if_t<F<H>::value>> {
   constexpr static size_t Index = 0;
 };
 
 template <template <typename> class F, typename H, typename... Ts>
 struct TupleElementByF<std::tuple<H, Ts...>, F,
-                       std::enable_if_t<!F<H>::value>> {
+                       neo::enable_if_t<!F<H>::value>> {
   constexpr static size_t Index =
       1 + TupleElementByF<std::tuple<Ts...>, F>::Index;
 };
@@ -37,7 +37,7 @@ template <typename T, typename TUP>
 constexpr inline T AggregationByTup(TUP &&tup) {
   return detail::AggregationByTupImpl<T>(
       std::forward<TUP>(tup),
-      std::make_index_sequence<std::tuple_size<std::decay_t<TUP>>::size>{});
+      std::make_index_sequence<std::tuple_size<neo::decay_t<TUP>>::size>{});
 }
 } // namespace dsl
 } // namespace tf

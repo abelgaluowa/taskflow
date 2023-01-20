@@ -671,12 +671,12 @@ class Executor {
     void _invoke_runtime_task(Worker&, Node*);
 
     template <typename C,
-      std::enable_if_t<is_cudaflow_task<C>::value, void>* = nullptr
+      neo::enable_if_t<is_cudaflow_task<C>::value, void>* = nullptr
     >
     void _invoke_cudaflow_task_entry(Node*, C&&);
 
     template <typename C, typename Q,
-      std::enable_if_t<is_syclflow_task<C>::value, void>* = nullptr
+      neo::enable_if_t<is_syclflow_task<C>::value, void>* = nullptr
     >
     void _invoke_syclflow_task_entry(Node*, C&&, Q&);
 };
@@ -742,7 +742,7 @@ auto Executor::named_async(const std::string& name, F&& f, ArgsT&&... args) {
   _increment_topology();
 
   using T = std::invoke_result_t<F, ArgsT...>;
-  using R = std::conditional_t<std::is_same<T, void>::value, void, std::optional<T>>;
+  using R = neo::conditional_t<std::is_same<T, void>::value, void, std::optional<T>>;
 
   std::promise<R> p;
 
@@ -1907,7 +1907,7 @@ auto Subflow::_named_async(
   _parent->_join_counter.fetch_add(1);
 
   using T = std::invoke_result_t<F, ArgsT...>;
-  using R = std::conditional_t<std::is_same<T, void>::value, void, std::optional<T>>;
+  using R = neo::conditional_t<std::is_same<T, void>::value, void, std::optional<T>>;
 
   std::promise<R> p;
 

@@ -166,7 +166,7 @@ __device__ auto cuda_load_two_streams_reg(
 /** @private */
 template<unsigned nt, unsigned vt, typename T, typename a_it, typename b_it>
 __device__
-std::enable_if_t<
+neo::enable_if_t<
   !(std::is_pointer<a_it>::value && std::is_pointer<b_it>::value),
   cudaArray<T, vt>
 > load_two_streams_reg(a_it a, unsigned a_count, b_it b, unsigned b_count, unsigned tid) {
@@ -210,7 +210,7 @@ __device__ auto cuda_gather_two_streams_strided(const T* a,
 /** @private */
 template<unsigned nt, unsigned vt, typename T, typename a_it, typename b_it>
 __device__
-std::enable_if_t<
+neo::enable_if_t<
   !(std::is_pointer<a_it>::value && std::is_pointer<b_it>::value),
   cudaArray<T, vt>
 > cuda_gather_two_streams_strided(a_it a,
@@ -386,7 +386,7 @@ void cuda_merge_loop(
   void* ptr
 ) {
 
-  using E = std::decay_t<P>;
+  using E = neo::decay_t<P>;
   using T = typename std::iterator_traits<a_keys_it>::value_type;
   using V = typename std::iterator_traits<a_vals_it>::value_type;
 
@@ -458,7 +458,7 @@ tf::cuda_merge.
 */
 template <typename P>
 unsigned cuda_merge_buffer_size(unsigned a_count, unsigned b_count) {
-  using E = std::decay_t<P>;
+  using E = neo::decay_t<P>;
   unsigned sz = (a_count + b_count + E::nv - 1) / E::nv + 1;
   return sz*sizeof(unsigned);
 }

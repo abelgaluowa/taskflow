@@ -255,7 +255,7 @@ class cudaFlow {
     A zero task zeroes the first @c count elements of type @c T
     in a device memory area pointed by @c dst.
     */
-    template <typename T, std::enable_if_t<
+    template <typename T, neo::enable_if_t<
       is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
     >
     cudaTask zero(T* dst, size_t count);
@@ -270,7 +270,7 @@ class cudaFlow {
     must be allocated from the same contexts as the original
     source/destination memory.
     */
-    template <typename T, std::enable_if_t<
+    template <typename T, neo::enable_if_t<
       is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
     >
     void zero(cudaTask task, T* dst, size_t count);
@@ -290,7 +290,7 @@ class cudaFlow {
     in a device memory area pointed by @c dst.
     The value to fill is interpreted in type @c T rather than byte.
     */
-    template <typename T, std::enable_if_t<
+    template <typename T, neo::enable_if_t<
       is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
     >
     cudaTask fill(T* dst, T value, size_t count);
@@ -305,7 +305,7 @@ class cudaFlow {
     must be allocated from the same contexts as the original
     source/destination memory.
     */
-    template <typename T, std::enable_if_t<
+    template <typename T, neo::enable_if_t<
       is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
     >
     void fill(cudaTask task, T* dst, T value, size_t count);
@@ -325,7 +325,7 @@ class cudaFlow {
     to a target location. Direction can be arbitrary among CPUs and GPUs.
     */
     template <typename T,
-      std::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
+      neo::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
     >
     cudaTask copy(T* tgt, const T* src, size_t num);
 
@@ -339,7 +339,7 @@ class cudaFlow {
     source/destination memory.
     */
     template <typename T,
-      std::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
+      neo::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
     >
     void copy(cudaTask task, T* tgt, const T* src, size_t num);
 
@@ -1301,7 +1301,7 @@ cudaTask cudaFlow::kernel(
 }
 
 // Function: zero
-template <typename T, std::enable_if_t<
+template <typename T, neo::enable_if_t<
   is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>*
 >
 cudaTask cudaFlow::zero(T* dst, size_t count) {
@@ -1323,7 +1323,7 @@ cudaTask cudaFlow::zero(T* dst, size_t count) {
 }
 
 // Function: fill
-template <typename T, std::enable_if_t<
+template <typename T, neo::enable_if_t<
   is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>*
 >
 cudaTask cudaFlow::fill(T* dst, T value, size_t count) {
@@ -1347,7 +1347,7 @@ cudaTask cudaFlow::fill(T* dst, T value, size_t count) {
 // Function: copy
 template <
   typename T,
-  std::enable_if_t<!std::is_same<T, void>::value, void>*
+  neo::enable_if_t<!std::is_same<T, void>::value, void>*
 >
 cudaTask cudaFlow::copy(T* tgt, const T* src, size_t num) {
 
@@ -1449,7 +1449,7 @@ void cudaFlow::kernel(
 }
 
 // Function: update copy parameters
-template <typename T, std::enable_if_t<!std::is_same<T, void>::value, void>*>
+template <typename T, neo::enable_if_t<!std::is_same<T, void>::value, void>*>
 void cudaFlow::copy(cudaTask task, T* tgt, const T* src, size_t num) {
 
   if(task.type() != cudaTaskType::MEMCPY) {
@@ -1497,7 +1497,7 @@ inline void cudaFlow::memset(cudaTask task, void* dst, int ch, size_t count) {
 }
 
 // Procedure: fill
-template <typename T, std::enable_if_t<
+template <typename T, neo::enable_if_t<
   is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>*
 >
 void cudaFlow::fill(cudaTask task, T* dst, T value, size_t count) {
@@ -1515,7 +1515,7 @@ void cudaFlow::fill(cudaTask task, T* dst, T value, size_t count) {
 }
 
 // Procedure: zero
-template <typename T, std::enable_if_t<
+template <typename T, neo::enable_if_t<
   is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>*
 >
 void cudaFlow::zero(cudaTask task, T* dst, size_t count) {
@@ -1675,7 +1675,7 @@ inline void cudaFlow::offload() {
 
 // FlowBuilder::emplace_on
 template <typename C, typename D,
-  std::enable_if_t<is_cudaflow_task<C>::value, void>*
+  neo::enable_if_t<is_cudaflow_task<C>::value, void>*
 >
 Task FlowBuilder::emplace_on(C&& c, D&& d) {
   auto n = _graph._emplace_back(
@@ -1690,7 +1690,7 @@ Task FlowBuilder::emplace_on(C&& c, D&& d) {
 }
 
 // FlowBuilder::emplace
-template <typename C, std::enable_if_t<is_cudaflow_task<C>::value, void>*>
+template <typename C, neo::enable_if_t<is_cudaflow_task<C>::value, void>*>
 Task FlowBuilder::emplace(C&& c) {
   return emplace_on(std::forward<C>(c), tf::cuda_get_device());
 }
@@ -1700,10 +1700,10 @@ Task FlowBuilder::emplace(C&& c) {
 // ############################################################################
 
 // Procedure: _invoke_cudaflow_task_entry
-template <typename C, std::enable_if_t<is_cudaflow_task<C>::value, void>*>
+template <typename C, neo::enable_if_t<is_cudaflow_task<C>::value, void>*>
 void Executor::_invoke_cudaflow_task_entry(Node* node, C&& c) {
 
-  using T = std::conditional_t<
+  using T = neo::conditional_t<
     absl::base_internal::is_invocable_r<void, C, cudaFlow&>::value, cudaFlow, cudaFlowCapturer
   >;
 

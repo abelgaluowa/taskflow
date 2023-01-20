@@ -99,7 +99,7 @@ sycl::event sycl_reduce_loop(
   std::vector<sycl::event> evs
 ) {
 
-  using E = std::decay_t<P>;
+  using E = neo::decay_t<P>;
   using R = syclBlockReduce<E::nt, T>;
 
   auto buf = static_cast<T*>(ptr);
@@ -167,7 +167,7 @@ Please refer to @ref SYCLSTDReduce for details.
 */
 template <typename P, typename T>
 unsigned sycl_reduce_buffer_size(unsigned count) {
-  using E = std::decay_t<P>;
+  using E = neo::decay_t<P>;
   unsigned B = (count + E::nv - 1) / E::nv;
   unsigned n = 0;
   for(auto b=B; b>1; n += (b=(b+E::nv-1)/E::nv));

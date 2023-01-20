@@ -29,7 +29,7 @@ void cuda_find_if_loop(P&& p, I input, unsigned count, unsigned* idx, U pred) {
     return;
   }
 
-  using E = std::decay_t<P>;
+  using E = neo::decay_t<P>;
 
   auto B = (count + E::nv - 1) / E::nv;
 

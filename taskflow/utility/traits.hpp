@@ -28,6 +28,7 @@
 #include <variant>
 #include <optional>
 #include "os.hpp"
+#include "type.hpp"
 
 namespace tf {
 
@@ -140,7 +141,7 @@ template<class T>
 using unwrap_reference_t = typename unwrap_reference<T>::type;
 
 template< class T >
-struct unwrap_ref_decay : unwrap_reference<std::decay_t<T>> {};
+struct unwrap_ref_decay : unwrap_reference<neo::decay_t<T>> {};
 
 template<class T>
 using unwrap_ref_decay_t = typename unwrap_ref_decay<T>::type;
@@ -153,8 +154,8 @@ using unwrap_ref_decay_t = typename unwrap_ref_decay<T>::type;
 template <typename B, typename E>
 struct stateful_iterator {
 
-  using TB = std::decay_t<unwrap_ref_decay_t<B>>;
-  using TE = std::decay_t<unwrap_ref_decay_t<E>>;
+  using TB = neo::decay_t<unwrap_ref_decay_t<B>>;
+  using TE = neo::decay_t<unwrap_ref_decay_t<E>>;
 
   static_assert(std::is_same<TB, TE>::value, "decayed iterator types must match");
 
@@ -168,9 +169,9 @@ using stateful_iterator_t = typename stateful_iterator<B, E>::type;
 template <typename B, typename E, typename S>
 struct stateful_index {
 
-  using TB = std::decay_t<unwrap_ref_decay_t<B>>;
-  using TE = std::decay_t<unwrap_ref_decay_t<E>>;
-  using TS = std::decay_t<unwrap_ref_decay_t<S>>;
+  using TB = neo::decay_t<unwrap_ref_decay_t<B>>;
+  using TE = neo::decay_t<unwrap_ref_decay_t<E>>;
+  using TS = neo::decay_t<unwrap_ref_decay_t<S>>;
 
   static_assert(
     std::is_integral<TB>::value, "decayed beg index must be an integral type"
@@ -244,7 +245,7 @@ struct filter_duplicates { using type = T; };
 
 template <template <typename...> class C, typename... Ts, typename U, typename... Us>
 struct filter_duplicates<C<Ts...>, U, Us...>
-    : std::conditional_t<(std::is_same<U, Ts>::value || ...)
+    : neo::conditional_t<(std::is_same<U, Ts>::value || ...)
                        , filter_duplicates<C<Ts...>, Us...>
                        , filter_duplicates<C<Ts..., U>, Us...>> {};
 

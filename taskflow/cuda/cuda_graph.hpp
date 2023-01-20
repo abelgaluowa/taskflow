@@ -16,11 +16,11 @@ namespace tf {
 @brief gets the memcpy node parameter of a copy task
 */
 template <typename T,
-  std::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
+  neo::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
 >
 cudaMemcpy3DParms cuda_get_copy_parms(T* tgt, const T* src, size_t num) {
 
-  using U = std::decay_t<T>;
+  using U = neo::decay_t<T>;
 
   cudaMemcpy3DParms p;
 
@@ -82,7 +82,7 @@ inline cudaMemsetParams cuda_get_memset_parms(void* dst, int ch, size_t count) {
 /**
 @brief gets the memset node parameter of a fill task (typed)
 */
-template <typename T, std::enable_if_t<
+template <typename T, neo::enable_if_t<
   is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
 >
 cudaMemsetParams cuda_get_fill_parms(T* dst, T value, size_t count) {
@@ -106,7 +106,7 @@ cudaMemsetParams cuda_get_fill_parms(T* dst, T value, size_t count) {
 /**
 @brief gets the memset node parameter of a zero task (typed)
 */
-template <typename T, std::enable_if_t<
+template <typename T, neo::enable_if_t<
   is_pod<T>::value && (sizeof(T)==1 || sizeof(T)==2 || sizeof(T)==4), void>* = nullptr
 >
 cudaMemsetParams cuda_get_zero_parms(T* dst, size_t count) {

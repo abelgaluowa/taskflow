@@ -89,7 +89,7 @@ void cuda_reduce_loop(
 ) {
 
   using U = typename std::iterator_traits<I>::value_type;
-  using E = std::decay_t<P>;
+  using E = neo::decay_t<P>;
 
   auto buf = static_cast<U*>(ptr);
   auto B = (count + E::nv - 1) / E::nv;
@@ -126,7 +126,7 @@ void cuda_uninitialized_reduce_loop(
 ) {
 
   using U = typename std::iterator_traits<I>::value_type;
-  using E = std::decay_t<P>;
+  using E = neo::decay_t<P>;
 
   auto buf = static_cast<U*>(ptr);
   auto B = (count + E::nv - 1) / E::nv;
@@ -174,7 +174,7 @@ tf::cuda_transform_uninitialized_reduce.
 */
 template <typename P, typename T>
 unsigned cuda_reduce_buffer_size(unsigned count) {
-  using E = std::decay_t<P>;
+  using E = neo::decay_t<P>;
   unsigned B = (count + E::nv - 1) / E::nv;
   unsigned n = 0;
   for(auto b=B; b>1; n += (b=(b+E::nv-1)/E::nv));

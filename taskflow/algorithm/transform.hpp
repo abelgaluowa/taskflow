@@ -14,9 +14,9 @@ Task FlowBuilder::transform(B first1, E last1, O d_first, C c) {
 
   using namespace std::string_literals;
 
-  using B_t = std::decay_t<unwrap_ref_decay_t<B>>;
-  using E_t = std::decay_t<unwrap_ref_decay_t<E>>;
-  using O_t = std::decay_t<unwrap_ref_decay_t<O>>;
+  using B_t = neo::decay_t<unwrap_ref_decay_t<B>>;
+  using E_t = neo::decay_t<unwrap_ref_decay_t<E>>;
+  using O_t = neo::decay_t<unwrap_ref_decay_t<O>>;
 
   Task task = emplace(
   [first1, last1, d_first, c] (Subflow& sf) mutable {
@@ -123,10 +123,10 @@ Task FlowBuilder::transform(B1 first1, E1 last1, B2 first2, O d_first, C c) {
 
   using namespace std::string_literals;
 
-  using B1_t = std::decay_t<unwrap_ref_decay_t<B1>>;
-  using E1_t = std::decay_t<unwrap_ref_decay_t<E1>>;
-  using B2_t = std::decay_t<unwrap_ref_decay_t<B2>>;
-  using O_t = std::decay_t<unwrap_ref_decay_t<O>>;
+  using B1_t = neo::decay_t<unwrap_ref_decay_t<B1>>;
+  using E1_t = neo::decay_t<unwrap_ref_decay_t<E1>>;
+  using B2_t = neo::decay_t<unwrap_ref_decay_t<B2>>;
+  using O_t = neo::decay_t<unwrap_ref_decay_t<O>>;
 
   Task task = emplace(
   [first1, last1, first2, d_first, c] (Subflow& sf) mutable {

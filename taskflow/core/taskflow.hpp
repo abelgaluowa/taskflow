@@ -641,7 +641,7 @@ Future<T>::Future(std::future<T>&& fu, P&& p) :
 template <typename T>
 bool Future<T>::cancel() {
   return std::visit([](auto&& arg){
-    using P = std::decay_t<decltype(arg)>;
+    using P = neo::decay_t<decltype(arg)>;
     if constexpr(std::is_same<P, std::monostate>::value) {
       return false;
     }

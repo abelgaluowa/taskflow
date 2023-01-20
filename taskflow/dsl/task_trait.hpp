@@ -35,7 +35,7 @@ template <typename... TASK> struct SomeTask {
 // a task self
 template <typename TASK>
 struct TaskTrait<
-    TASK, std::enable_if_t<std::is_base_of<TaskSignature, TASK>::value>> {
+    TASK, neo::enable_if_t<std::is_base_of<TaskSignature, TASK>::value>> {
   using TaskList = TypeList<TASK>;
 };
 

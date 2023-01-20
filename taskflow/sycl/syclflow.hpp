@@ -88,7 +88,7 @@ class syclFlow {
     command group handler object to perform all the necessary work 
     required to correctly process data on a device using a kernel.
     */
-    template <typename F, std::enable_if_t<
+    template <typename F, neo::enable_if_t<
       absl::base_internal::is_invocable_r<void, F, sycl::handler&>::value, void>* = nullptr
     >
     syclTask on(F&& func);
@@ -98,7 +98,7 @@ class syclFlow {
 
     Similar to tf::syclFlow::on but operates on an existing task.
     */
-    template <typename F, std::enable_if_t<
+    template <typename F, neo::enable_if_t<
       absl::base_internal::is_invocable_r<void, F, sycl::handler&>::value, void>* = nullptr
     >
     void on(syclTask task, F&& func);
@@ -162,7 +162,7 @@ class syclFlow {
     location to a target memory location.
     */
     template <typename T,
-      std::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
+      neo::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
     >
     syclTask copy(T* target, const T* source, size_t count);
     
@@ -384,7 +384,7 @@ class syclFlow {
     Similar to tf::syclFlow::copy but operates on an existing task.
     */
     template <typename T,
-      std::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
+      neo::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
     >
     void copy(syclTask task, T* target, const T* source, size_t count);
     
@@ -470,14 +470,14 @@ syclTask syclFlow::fill(void* ptr, const T& pattern, size_t count) {
 
 // Function: copy
 template <typename T,
-  std::enable_if_t<!std::is_same<T, void>::value, void>*
+  neo::enable_if_t<!std::is_same<T, void>::value, void>*
 >
 syclTask syclFlow::copy(T* target, const T* source, size_t count) {
   return on([=](sycl::handler& h){ h.memcpy(target, source, count*sizeof(T)); });
 }
 
 // Function: on
-template <typename F, std::enable_if_t<
+template <typename F, neo::enable_if_t<
   absl::base_internal::is_invocable_r<void, F, sycl::handler&>::value, void>*
 >
 syclTask syclFlow::on(F&& f) {
@@ -576,7 +576,7 @@ inline void syclFlow::offload() {
 }
 
 // Function: on
-template <typename F, std::enable_if_t<
+template <typename F, neo::enable_if_t<
   absl::base_internal::is_invocable_r<void, F, sycl::handler&>::value, void>*
 >
 void syclFlow::on(syclTask task, F&& f) {
@@ -608,7 +608,7 @@ void syclFlow::fill(
 
 // Function: copy
 template <typename T,
-  std::enable_if_t<!std::is_same<T, void>::value, void>*
+  neo::enable_if_t<!std::is_same<T, void>::value, void>*
 >
 void syclFlow::copy(
   syclTask task, T* target, const T* source, size_t count
@@ -635,7 +635,7 @@ void syclFlow::single_task(syclTask task, F&& func) {
 // ############################################################################
     
 // FlowBuilder::emplace_on
-template <typename C, typename Q, std::enable_if_t<is_syclflow_task<C>::value, void>*>
+template <typename C, typename Q, neo::enable_if_t<is_syclflow_task<C>::value, void>*>
 Task FlowBuilder::emplace_on(C&& callable, Q&& q) {
   auto n = _graph._emplace_back(
     std::in_place_type_t<Node::syclFlow>{},
@@ -649,7 +649,7 @@ Task FlowBuilder::emplace_on(C&& callable, Q&& q) {
 }
 
 // FlowBuilder::emplace
-template <typename C, std::enable_if_t<is_syclflow_task<C>::value, void>*>
+template <typename C, neo::enable_if_t<is_syclflow_task<C>::value, void>*>
 Task FlowBuilder::emplace(C&& callable) {
   return emplace_on(std::forward<C>(callable), sycl::queue{});
 }
@@ -660,7 +660,7 @@ Task FlowBuilder::emplace(C&& callable) {
 
 // Procedure: _invoke_syclflow_task_entry (syclFlow)
 template <typename C, typename Q,
-  std::enable_if_t<is_syclflow_task<C>::value, void>*
+  neo::enable_if_t<is_syclflow_task<C>::value, void>*
 >
 void Executor::_invoke_syclflow_task_entry(Node* node, C&& c, Q& queue) {
 

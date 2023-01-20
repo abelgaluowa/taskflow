@@ -17,7 +17,7 @@ template <typename... Links> class TaskAnalyzer {
 
   template <typename F, typename... Ts>
   struct BuildOneToOneLink<F, TypeList<Ts...>,
-                           std::enable_if_t<!IsTypeList<F>::value>> {
+                           neo::enable_if_t<!IsTypeList<F>::value>> {
     using type = TypeList<OneToOneLink<F, Ts>...>;
   };
 

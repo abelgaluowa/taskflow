@@ -155,7 +155,7 @@ class cudaFlowCapturer {
     This methods applies a stream created by the flow to capture
     a sequence of CUDA operations defined in the callable.
     */
-    template <typename C, std::enable_if_t<
+    template <typename C, neo::enable_if_t<
       absl::base_internal::is_invocable_r<void, C, cudaStream_t>::value, void>* = nullptr
     >
     cudaTask on(C&& callable);
@@ -166,7 +166,7 @@ class cudaFlowCapturer {
     The method is similar to cudaFlowCapturer::on but operates
     on an existing task.
     */
-    template <typename C, std::enable_if_t<
+    template <typename C, neo::enable_if_t<
       absl::base_internal::is_invocable_r<void, C, cudaStream_t>::value, void>* = nullptr
     >
     void on(cudaTask task, C&& callable);
@@ -228,7 +228,7 @@ class cudaFlowCapturer {
     to a target location. Direction can be arbitrary among CPUs and GPUs.
     */
     template <typename T,
-      std::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
+      neo::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
     >
     cudaTask copy(T* tgt, const T* src, size_t num);
 
@@ -239,7 +239,7 @@ class cudaFlowCapturer {
     an existing task.
     */
     template <typename T,
-      std::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
+      neo::enable_if_t<!std::is_same<T, void>::value, void>* = nullptr
     >
     void copy(cudaTask task, T* tgt, const T* src, size_t num);
 
@@ -1097,7 +1097,7 @@ inline void cudaFlowCapturer::dump(std::ostream& os) const {
 }
 
 // Function: capture
-template <typename C, std::enable_if_t<
+template <typename C, neo::enable_if_t<
   absl::base_internal::is_invocable_r<void, C, cudaStream_t>::value, void>*
 >
 cudaTask cudaFlowCapturer::on(C&& callable) {
@@ -1130,7 +1130,7 @@ inline cudaTask cudaFlowCapturer::memcpy(
 }
 
 // Function: copy
-template <typename T, std::enable_if_t<!std::is_same<T, void>::value, void>*>
+template <typename T, neo::enable_if_t<!std::is_same<T, void>::value, void>*>
 cudaTask cudaFlowCapturer::copy(T* tgt, const T* src, size_t num) {
   return on([tgt, src, num] (cudaStream_t stream) mutable {
     TF_CHECK_CUDA(
@@ -1212,7 +1212,7 @@ inline void cudaFlowCapturer::offload() {
 }
 
 // Function: on
-template <typename C, std::enable_if_t<
+template <typename C, neo::enable_if_t<
   absl::base_internal::is_invocable_r<void, C, cudaStream_t>::value, void>*
 >
 void cudaFlowCapturer::on(cudaTask task, C&& callable) {
@@ -1241,7 +1241,7 @@ inline void cudaFlowCapturer::memcpy(
 
 // Function: copy
 template <typename T,
-  std::enable_if_t<!std::is_same<T, void>::value, void>*
+  neo::enable_if_t<!std::is_same<T, void>::value, void>*
 >
 void cudaFlowCapturer::copy(
   cudaTask task, T* tgt, const T* src, size_t num

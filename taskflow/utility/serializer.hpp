@@ -196,7 +196,7 @@ class SizeTag {
 
   public:
 
-    using type = std::conditional_t<std::is_lvalue_reference<T>::value, T, std::decay_t<T>>;
+    using type = neo::conditional_t<std::is_lvalue_reference<T>::value, T, neo::decay_t<T>>;
 
     SizeTag(T&& item) : _item(std::forward<T>(item)) {}
 
@@ -231,8 +231,8 @@ class MapItem {
 
   public:
 
-    using KeyType = std::conditional_t <std::is_lvalue_reference<KeyT>::value, KeyT, std::decay_t<KeyT>>;
-    using ValueType = std::conditional_t <std::is_lvalue_reference<ValueT>::value, ValueT, std::decay_t<ValueT>>;
+    using KeyType = neo::conditional_t <std::is_lvalue_reference<KeyT>::value, KeyT, neo::decay_t<KeyT>>;
+    using ValueType = neo::conditional_t <std::is_lvalue_reference<ValueT>::value, ValueT, neo::decay_t<ValueT>>;
 
     MapItem(KeyT&& k, ValueT&& v) : _key(std::forward<KeyT>(k)), _value(std::forward<ValueT>(v)) {}
     MapItem& operator = (const MapItem&) = delete;
@@ -299,92 +299,92 @@ class Serializer {
     Stream& _stream;
 
     template <typename T,
-      std::enable_if_t<!is_default_serializable<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<!is_default_serializable<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<std::is_arithmetic<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<std::is_arithmetic<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_basic_string<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_basic_string<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_vector<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_vector<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<
-        is_std_deque<std::decay_t<T>>::value ||
-        is_std_list<std::decay_t<T>>::value,
+      neo::enable_if_t<
+        is_std_deque<neo::decay_t<T>>::value ||
+        is_std_list<neo::decay_t<T>>::value,
         void
       >* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<
-        is_std_forward_list<std::decay_t<T>>::value,
+      neo::enable_if_t<
+        is_std_forward_list<neo::decay_t<T>>::value,
         void
       >* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<
-        is_std_map<std::decay_t<T>>::value ||
-        is_std_unordered_map<std::decay_t<T>>::value,
+      neo::enable_if_t<
+        is_std_map<neo::decay_t<T>>::value ||
+        is_std_unordered_map<neo::decay_t<T>>::value,
         void
       >* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<
-        is_std_set<std::decay_t<T>>::value ||
-        is_std_unordered_set<std::decay_t<T>>::value,
+      neo::enable_if_t<
+        is_std_set<neo::decay_t<T>>::value ||
+        is_std_unordered_set<neo::decay_t<T>>::value,
         void
       >* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<std::is_enum<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<std::is_enum<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_duration<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_duration<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_time_point<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_time_point<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_optional<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_optional<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_variant<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_variant<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_tuple<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_tuple<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_array<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_array<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
@@ -406,7 +406,7 @@ SizeType Serializer<Stream, SizeType>::operator() (T&&... items) {
 // arithmetic data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<std::is_arithmetic<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<std::is_arithmetic<neo::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   _stream.write(reinterpret_cast<const char*>(std::addressof(t)), sizeof(t));
@@ -416,10 +416,10 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // std::basic_string
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_basic_string<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_basic_string<neo::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
-  using U = std::decay_t<T>;
+  using U = neo::decay_t<T>;
   auto sz = _save(make_size_tag(t.size()));
   _stream.write(
     reinterpret_cast<const char*>(t.data()),
@@ -431,11 +431,11 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // std::vector
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_vector<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_vector<neo::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 
-  using U = std::decay_t<T>;
+  using U = neo::decay_t<T>;
 
   auto sz = _save(make_size_tag(t.size()));
 
@@ -457,8 +457,8 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // std::list and std::deque
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_deque<std::decay_t<T>>::value ||
-                   is_std_list<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_deque<neo::decay_t<T>>::value ||
+                   is_std_list<neo::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   auto sz = _save(make_size_tag(t.size()));
@@ -471,7 +471,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // std::forward_list
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_forward_list<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_forward_list<neo::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   auto sz = _save(make_size_tag(std::distance(t.begin(), t.end())));
@@ -483,9 +483,9 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 
 // std::map and std::unordered_map
 template <typename Stream, typename SizeType>
-template <typename T, std::enable_if_t<
-  is_std_map<std::decay_t<T>>::value ||
-  is_std_unordered_map<std::decay_t<T>>::value,
+template <typename T, neo::enable_if_t<
+  is_std_map<neo::decay_t<T>>::value ||
+  is_std_unordered_map<neo::decay_t<T>>::value,
   void
 >*>
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
@@ -498,9 +498,9 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 
 // std::set and std::unordered_set
 template <typename Stream, typename SizeType>
-template <typename T, std::enable_if_t<
-  is_std_set<std::decay_t<T>>::value ||
-  is_std_unordered_set<std::decay_t<T>>::value,
+template <typename T, neo::enable_if_t<
+  is_std_set<neo::decay_t<T>>::value ||
+  is_std_unordered_set<neo::decay_t<T>>::value,
   void
 >*>
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
@@ -514,17 +514,17 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // enum data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<std::is_enum<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<std::is_enum<neo::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
-  using U = std::decay_t<T>;
+  using U = neo::decay_t<T>;
   return _save(static_cast<std::underlying_type_t<U>>(t));
 }
 
 // duration data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_duration<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_duration<neo::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   return _save(t.count());
@@ -533,7 +533,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // time point data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_time_point<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_time_point<neo::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   return _save(t.time_since_epoch());
@@ -542,7 +542,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // optional data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_optional<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_optional<neo::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   if(bool flag = t.has_value(); flag) {
@@ -556,7 +556,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // variant type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_variant<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_variant<neo::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   return _save(t.index()) +
@@ -566,7 +566,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // tuple type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_tuple<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_tuple<neo::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   return std::apply(
@@ -580,11 +580,11 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // array
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_array<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_array<neo::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 
-  using U = std::decay_t<T>;
+  using U = neo::decay_t<T>;
 
   static_assert(std::tuple_size<U>::value > 0, "Array size can't be zero");
 
@@ -607,7 +607,7 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // custom save method
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<!is_default_serializable<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<!is_default_serializable<neo::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   return t.save(*this);
@@ -655,99 +655,99 @@ class Deserializer {
     // Function: _variant_helper
     template <
       size_t I = 0, typename... ArgsT,
-      std::enable_if_t<I==sizeof...(ArgsT)>* = nullptr
+      neo::enable_if_t<I==sizeof...(ArgsT)>* = nullptr
     >
     SizeType _variant_helper(size_t, std::variant<ArgsT...>&);
 
     // Function: _variant_helper
     template <
       size_t I = 0, typename... ArgsT,
-      std::enable_if_t<I<sizeof...(ArgsT)>* = nullptr
+      neo::enable_if_t<I<sizeof...(ArgsT)>* = nullptr
     >
     SizeType _variant_helper(size_t, std::variant<ArgsT...>&);
 
     template <typename T,
-      std::enable_if_t<std::is_arithmetic<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<std::is_arithmetic<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_basic_string<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_basic_string<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_vector<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_vector<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<
-        is_std_deque<std::decay_t<T>>::value ||
-        is_std_list<std::decay_t<T>>::value  ||
-        is_std_forward_list<std::decay_t<T>>::value,
+      neo::enable_if_t<
+        is_std_deque<neo::decay_t<T>>::value ||
+        is_std_list<neo::decay_t<T>>::value  ||
+        is_std_forward_list<neo::decay_t<T>>::value,
         void
       >* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_map<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_map<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_unordered_map<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_unordered_map<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_set<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_set<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_unordered_set<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_unordered_set<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<std::is_enum<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<std::is_enum<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_duration<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_duration<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_time_point<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_time_point<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_optional<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_optional<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_variant<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_variant<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_tuple<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_tuple<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<is_std_array<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_array<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
     template <typename T,
-      std::enable_if_t<!is_default_deserializable<std::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<!is_default_deserializable<neo::decay_t<T>>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 };
@@ -766,14 +766,14 @@ SizeType Deserializer<Stream, SizeType>::operator() (T&&... items) {
 
 // Function: _variant_helper
 template <typename Stream, typename SizeType>
-template <size_t I, typename... ArgsT, std::enable_if_t<I==sizeof...(ArgsT)>*>
+template <size_t I, typename... ArgsT, neo::enable_if_t<I==sizeof...(ArgsT)>*>
 SizeType Deserializer<Stream, SizeType>::_variant_helper(size_t, std::variant<ArgsT...>&) {
   return 0;
 }
 
 // Function: _variant_helper
 template <typename Stream, typename SizeType>
-template <size_t I, typename... ArgsT, std::enable_if_t<I<sizeof...(ArgsT)>*>
+template <size_t I, typename... ArgsT, neo::enable_if_t<I<sizeof...(ArgsT)>*>
 SizeType Deserializer<Stream, SizeType>::_variant_helper(size_t i, std::variant<ArgsT...>& v) {
   if(i == 0) {
     using type = ExtractType_t<I, std::variant<ArgsT...>>;
@@ -792,7 +792,7 @@ SizeType Deserializer<Stream, SizeType>::_variant_helper(size_t i, std::variant<
 // arithmetic data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<std::is_arithmetic<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<std::is_arithmetic<neo::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
   _stream.read(reinterpret_cast<char*>(std::addressof(t)), sizeof(t));
@@ -802,10 +802,10 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // std::basic_string
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_basic_string<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_basic_string<neo::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
-  using U = std::decay_t<T>;
+  using U = neo::decay_t<T>;
   typename U::size_type num_chars;
   auto sz = _load(make_size_tag(num_chars));
   t.resize(num_chars);
@@ -816,11 +816,11 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // std::vector
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_vector<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_vector<neo::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
-  using U = std::decay_t<T>;
+  using U = neo::decay_t<T>;
 
   typename U::size_type num_data;
 
@@ -843,12 +843,12 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // std::list and std::deque
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_deque<std::decay_t<T>>::value ||
-                   is_std_list<std::decay_t<T>>::value  ||
-                   is_std_forward_list<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_deque<neo::decay_t<T>>::value ||
+                   is_std_list<neo::decay_t<T>>::value  ||
+                   is_std_forward_list<neo::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
-  using U = std::decay_t<T>;
+  using U = neo::decay_t<T>;
 
   typename U::size_type num_data;
   auto sz = _load(make_size_tag(num_data));
@@ -863,11 +863,11 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // std::map
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_map<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_map<neo::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
-  using U = std::decay_t<T>;
+  using U = neo::decay_t<T>;
 
   typename U::size_type num_data;
   auto sz = _load(make_size_tag(num_data));
@@ -888,10 +888,10 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // std::unordered_map
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_unordered_map<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_unordered_map<neo::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
-  using U = std::decay_t<T>;
+  using U = neo::decay_t<T>;
   typename U::size_type num_data;
   auto sz = _load(make_size_tag(num_data));
 
@@ -912,11 +912,11 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // std::set
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_set<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_set<neo::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
-  using U = std::decay_t<T>;
+  using U = neo::decay_t<T>;
 
   typename U::size_type num_data;
   auto sz = _load(make_size_tag(num_data));
@@ -936,11 +936,11 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // std::unordered_set
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_unordered_set<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_unordered_set<neo::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
-  using U = std::decay_t<T>;
+  using U = neo::decay_t<T>;
 
   typename U::size_type num_data;
   auto sz = _load(make_size_tag(num_data));
@@ -960,10 +960,10 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // enum data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<std::is_enum<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<std::is_enum<neo::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
-  using U = std::decay_t<T>;
+  using U = neo::decay_t<T>;
   std::underlying_type_t<U> k;
   auto sz = _load(k);
   t = static_cast<U>(k);
@@ -973,10 +973,10 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // duration data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_duration<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_duration<neo::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
-  using U = std::decay_t<T>;
+  using U = neo::decay_t<T>;
   typename U::rep count;
   auto s = _load(count);
   t = U{count};
@@ -986,10 +986,10 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // time point data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_time_point<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_time_point<neo::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
-  using U = std::decay_t<T>;
+  using U = neo::decay_t<T>;
   typename U::duration elapsed;
   auto s = _load(elapsed);
   t = U{elapsed};
@@ -999,11 +999,11 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // optional data type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_optional<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_optional<neo::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
-  using U = std::decay_t<T>;
+  using U = neo::decay_t<T>;
 
   bool has_value;
   auto s = _load(has_value);
@@ -1022,10 +1022,10 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // variant type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_variant<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_variant<neo::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
-  std::decay_t<decltype(t.index())> idx;
+  neo::decay_t<decltype(t.index())> idx;
   auto s = _load(idx);
   return s + _variant_helper(idx, t);
 }
@@ -1033,7 +1033,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // tuple type
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_tuple<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_tuple<neo::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
   return std::apply(
@@ -1047,11 +1047,11 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // array
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<is_std_array<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_array<neo::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
-  using U = std::decay_t<T>;
+  using U = neo::decay_t<T>;
 
   static_assert(std::tuple_size<U>::value > 0, "Array size can't be zero");
 
@@ -1074,7 +1074,7 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // custom save method
 template <typename Stream, typename SizeType>
 template <typename T,
-  std::enable_if_t<!is_default_deserializable<std::decay_t<T>>::value, void>*
+  neo::enable_if_t<!is_default_deserializable<neo::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
   return t.load(*this);

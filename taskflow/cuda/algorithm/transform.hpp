@@ -19,7 +19,7 @@ namespace detail {
 template <typename P, typename I, typename O, typename C>
 void cuda_transform_loop(P&& p, I first, unsigned count, O output, C op) {
 
-  using E = std::decay_t<P>;
+  using E = neo::decay_t<P>;
 
   unsigned B = (count + E::nv - 1) / E::nv;
 
@@ -38,7 +38,7 @@ void cuda_transform_loop(
   P&& p, I1 first1, I2 first2, unsigned count, O output, C op
 ) {
 
-  using E = std::decay_t<P>;
+  using E = neo::decay_t<P>;
 
   unsigned B = (count + E::nv - 1) / E::nv;
 

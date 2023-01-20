@@ -8,7 +8,7 @@ namespace tf {
 template <typename I>
 constexpr size_t parallel_sort_cutoff() {
 
-  //using value_type = std::decay_t<decltype(*std::declval<I>())>;
+  //using value_type = neo::decay_t<decltype(*std::declval<I>())>;
   using value_type = typename std::iterator_traits<I>::value_type;
 
   constexpr size_t object_size = sizeof(value_type);
@@ -432,8 +432,8 @@ void parallel_3wqsort(tf::Subflow& sf, RandItr first, RandItr last, C compare) {
 template <typename B, typename E, typename C>
 Task FlowBuilder::sort(B beg, E end, C cmp) {
 
-  using B_t = std::decay_t<unwrap_ref_decay_t<B>>;
-  using E_t = std::decay_t<unwrap_ref_decay_t<E>>;
+  using B_t = neo::decay_t<unwrap_ref_decay_t<B>>;
+  using E_t = neo::decay_t<unwrap_ref_decay_t<E>>;
 
   Task task = emplace([b=beg, e=end, cmp] (Subflow& sf) mutable {
 
@@ -466,7 +466,7 @@ Task FlowBuilder::sort(B beg, E end, C cmp) {
 // Function: sort
 template <typename B, typename E>
 Task FlowBuilder::sort(B beg, E end) {
-  using value_type = std::decay_t<decltype(*std::declval<B>())>;
+  using value_type = neo::decay_t<decltype(*std::declval<B>())>;
   return sort(beg, end, std::less<value_type>{});
 }
 

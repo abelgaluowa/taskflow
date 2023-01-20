@@ -67,14 +67,14 @@ struct Flatten {
 template <typename IN> using Flatten_t = typename Flatten<IN>::type;
 
 template <typename IN, typename OUT>
-struct Flatten<IN, OUT, std::enable_if_t<IsTypeList<typename IN::head>::value>> {
+struct Flatten<IN, OUT, neo::enable_if_t<IsTypeList<typename IN::head>::value>> {
   using type =
       typename Flatten<typename IN::tails,
                        Concat_t<OUT, Flatten_t<typename IN::head>>>::type;
 };
 
 template <typename IN, typename OUT>
-struct Flatten<IN, OUT, std::enable_if_t<!IsTypeList<typename IN::head>::value>> {
+struct Flatten<IN, OUT, neo::enable_if_t<!IsTypeList<typename IN::head>::value>> {
   using type = typename Flatten<
       typename IN::tails,
       typename OUT::template appendTo<typename IN::head>>::type;
@@ -106,7 +106,7 @@ class Filter<IN, F, OUT, void_t<typename IN::head>> {
   using H = typename IN::head;
 
 public:
-  using type = typename std::conditional_t<
+  using type = typename neo::conditional_t<
       F<H>::value,
       Filter<typename IN::tails, F, typename OUT::template appendTo<H>>,
       Filter<typename IN::tails, F, OUT>>::type;

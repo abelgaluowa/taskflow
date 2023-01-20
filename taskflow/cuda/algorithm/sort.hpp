@@ -258,7 +258,7 @@ void merge_sort_loop(
 
   using K = typename std::iterator_traits<K_it>::value_type;
   using V = typename std::iterator_traits<V_it>::value_type;
-  using E = std::decay_t<P>;
+  using E = neo::decay_t<P>;
 
   const bool has_values = !std::is_same<V, cudaEmpty>::value;
 
@@ -420,7 +420,7 @@ The function is used to allocate a buffer for calling tf::cuda_sort.
 template <typename P, typename K, typename V = cudaEmpty>
 unsigned cuda_sort_buffer_size(unsigned count) {
 
-  using E = std::decay_t<P>;
+  using E = neo::decay_t<P>;
 
   const bool has_values = !std::is_same<V, cudaEmpty>::value;
 
