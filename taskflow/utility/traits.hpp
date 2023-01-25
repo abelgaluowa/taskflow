@@ -246,7 +246,7 @@ struct filter_duplicates { using type = T; };
 
 template <template <typename...> class C, typename... Ts, typename U, typename... Us>
 struct filter_duplicates<C<Ts...>, U, Us...>
-    : neo::conditional_t<(std::is_same<U, Ts>::value || ...)
+    : neo::conditional_t<neo::is_one_of<U, Ts...>::value
                        , filter_duplicates<C<Ts...>, Us...>
                        , filter_duplicates<C<Ts..., U>, Us...>> {};
 
