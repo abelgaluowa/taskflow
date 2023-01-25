@@ -403,17 +403,17 @@ class Node {
   public:
 
   // variant index
-  constexpr static auto PLACEHOLDER     = get_index_v<std::monostate, handle_t>;
-  constexpr static auto STATIC          = get_index_v<Static, handle_t>;
-  constexpr static auto DYNAMIC         = get_index_v<Dynamic, handle_t>;
-  constexpr static auto CONDITION       = get_index_v<Condition, handle_t>;
-  constexpr static auto MULTI_CONDITION = get_index_v<MultiCondition, handle_t>;
-  constexpr static auto MODULE          = get_index_v<Module, handle_t>;
-  constexpr static auto ASYNC           = get_index_v<Async, handle_t>;
-  constexpr static auto SILENT_ASYNC    = get_index_v<SilentAsync, handle_t>;
-  constexpr static auto CUDAFLOW        = get_index_v<cudaFlow, handle_t>;
-  constexpr static auto SYCLFLOW        = get_index_v<syclFlow, handle_t>;
-  constexpr static auto RUNTIME         = get_index_v<Runtime, handle_t>;
+  constexpr static auto PLACEHOLDER     = get_index<std::monostate, handle_t>::value;
+  constexpr static auto STATIC          = get_index<Static, handle_t>::value;
+  constexpr static auto DYNAMIC         = get_index<Dynamic, handle_t>::value;
+  constexpr static auto CONDITION       = get_index<Condition, handle_t>::value;
+  constexpr static auto MULTI_CONDITION = get_index<MultiCondition, handle_t>::value;
+  constexpr static auto MODULE          = get_index<Module, handle_t>::value;
+  constexpr static auto ASYNC           = get_index<Async, handle_t>::value;
+  constexpr static auto SILENT_ASYNC    = get_index<SilentAsync, handle_t>::value;
+  constexpr static auto CUDAFLOW        = get_index<cudaFlow, handle_t>::value;
+  constexpr static auto SYCLFLOW        = get_index<syclFlow, handle_t>::value;
+  constexpr static auto RUNTIME         = get_index<Runtime, handle_t>::value;
 
   template <typename... Args>
   Node(Args&&... args);

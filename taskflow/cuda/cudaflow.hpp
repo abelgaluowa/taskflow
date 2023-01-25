@@ -71,8 +71,8 @@ class cudaFlow {
   using handle_t = absl::variant<External, Internal>;
   
   // variant index
-  constexpr static auto EXTERNAL = get_index_v<External, handle_t>;
-  constexpr static auto INTERNAL = get_index_v<Internal, handle_t>;
+  constexpr static auto EXTERNAL = get_index<External, handle_t>::value;
+  constexpr static auto INTERNAL = get_index<Internal, handle_t>::value;
 
   public:
 

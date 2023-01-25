@@ -124,9 +124,6 @@ struct get_index_impl<I, T, U, Ts...> : get_index_impl<I+1, T, Ts...>{};
 template <typename T, typename... Ts>
 struct get_index<T, absl::variant<Ts...>> : get_index_impl<0, T, Ts...>{};
 
-template <typename T, typename... Ts>
-constexpr auto get_index_v = get_index<T, Ts...>::value;
-
 // ----------------------------------------------------------------------------
 // unwrap_reference
 // ----------------------------------------------------------------------------
@@ -203,7 +200,7 @@ using stateful_index_t = typename stateful_index<B, E, S>::type;
 template <typename Func, typename Tuple, size_t N = 0>
 void visit_tuple(Func func, Tuple& tup, size_t idx) {
   if (N == idx) {
-    std::invoke(func, std::get<N>(tup));
+    absl::base_internal::invoke(func, std::get<N>(tup));
     return;
   }
   if constexpr (N + 1 < std::tuple_size<Tuple>::value) {

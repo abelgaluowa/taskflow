@@ -687,13 +687,13 @@ class cudaNode {
   public:
 
   // variant index
-  constexpr static auto EMPTY   = get_index_v<Empty, handle_t>;
-  constexpr static auto HOST    = get_index_v<Host, handle_t>;
-  constexpr static auto MEMSET  = get_index_v<Memset, handle_t>;
-  constexpr static auto MEMCPY  = get_index_v<Memcpy, handle_t>;
-  constexpr static auto KERNEL  = get_index_v<Kernel, handle_t>;
-  constexpr static auto SUBFLOW = get_index_v<Subflow, handle_t>;
-  constexpr static auto CAPTURE = get_index_v<Capture, handle_t>;
+  constexpr static auto EMPTY   = get_index<Empty, handle_t>::value;
+  constexpr static auto HOST    = get_index<Host, handle_t>::value;
+  constexpr static auto MEMSET  = get_index<Memset, handle_t>::value;
+  constexpr static auto MEMCPY  = get_index<Memcpy, handle_t>::value;
+  constexpr static auto KERNEL  = get_index<Kernel, handle_t>::value;
+  constexpr static auto SUBFLOW = get_index<Subflow, handle_t>::value;
+  constexpr static auto CAPTURE = get_index<Capture, handle_t>::value;
 
     cudaNode() = delete;
 

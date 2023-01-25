@@ -578,8 +578,8 @@ class Future : public std::future<T>  {
   >;
 
   // variant index
-  constexpr static auto ASYNC = get_index_v<std::weak_ptr<AsyncTopology>, handle_t>;
-  constexpr static auto TASKFLOW = get_index_v<std::weak_ptr<Topology>, handle_t>;
+  constexpr static auto ASYNC = get_index<std::weak_ptr<AsyncTopology>, handle_t>::value;
+  constexpr static auto TASKFLOW = get_index<std::weak_ptr<Topology>, handle_t>::value;
 
   public:
 

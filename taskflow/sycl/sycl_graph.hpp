@@ -80,8 +80,8 @@ class syclNode {
   public:
 
   // variant index
-  constexpr static auto EMPTY = get_index_v<Empty, handle_t>;
-  constexpr static auto COMMAND_GROUP_HANDLER = get_index_v<CGH, handle_t>;
+  constexpr static auto EMPTY = get_index<Empty, handle_t>::value;
+  constexpr static auto COMMAND_GROUP_HANDLER = get_index<CGH, handle_t>::value;
 
     syclNode() = delete;
 
