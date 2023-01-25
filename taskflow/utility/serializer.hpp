@@ -205,10 +205,10 @@ class SizeTag {
     inline const T& get() const {return _item;}
 
     template <typename ArchiverT>
-    auto save(ArchiverT & ar) const { return ar(_item); }
+    auto save(ArchiverT & ar) const -> decltype(ar(std::declval<type>())) { return ar(_item); }
 
     template <typename ArchiverT>
-    auto load(ArchiverT & ar) { return ar(_item); }
+    auto load(ArchiverT & ar) -> decltype(ar(std::declval<type>())) { return ar(_item); }
 
   private:
 
@@ -241,10 +241,10 @@ class MapItem {
     inline const ValueT& value() const { return _value; }
 
     template <typename ArchiverT>
-    auto save(ArchiverT & ar) const { return ar(_key, _value); }
+    auto save(ArchiverT & ar) const -> decltype(ar(std::declval<KeyType>(), std::declval<ValueType>())) { return ar(_key, _value); }
 
     template <typename ArchiverT>
-    auto load(ArchiverT & ar) { return ar(_key, _value); }
+    auto load(ArchiverT & ar) -> decltype(ar(std::declval<KeyType>(), std::declval<ValueType>())) { return ar(_key, _value); }
 
   private:
 
@@ -297,6 +297,14 @@ class Serializer {
   private:
 
     Stream& _stream;
+
+    /// helper
+    template <typename T>
+    SizeType accumulate(T&& t);
+
+    template <typename T, typename... Args>
+    SizeType accumulate(T&& t, Args&&... items);
+
 
     template <typename T,
       neo::enable_if_t<!is_default_serializable<neo::decay_t<T>>::value, void>* = nullptr
@@ -396,11 +404,24 @@ template <typename Stream, typename SizeType>
 Serializer<Stream, SizeType>::Serializer(Stream& stream) : _stream(stream) {
 }
 
+template <typename Stream, typename SizeType>
+template <typename T>
+SizeType Serializer<Stream, SizeType>::accumulate(T&& t) {
+    return _save(std::forward<T>(t));
+}
+
+template <typename Stream, typename SizeType>
+template <typename T, typename... Args>
+SizeType Serializer<Stream, SizeType>::accumulate(T&& t, Args&&... items) {
+    return _save(std::forward<T>(t)) + accumulate(std::forward<Args>(items)...);
+}
+
 // Operator ()
 template <typename Stream, typename SizeType>
 template <typename... T>
 SizeType Serializer<Stream, SizeType>::operator() (T&&... items) {
-  return (_save(std::forward<T>(items)) + ...);
+  // return (_save(std::forward<T>(items)) + ...);
+  return accumulate(std::forward<T>(items)...);
 }
 
 // arithmetic data type
