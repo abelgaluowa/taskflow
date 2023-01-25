@@ -260,7 +260,7 @@ class TaskQueue {
 template <typename T, unsigned MAX_PRIORITY>
 TaskQueue<T, MAX_PRIORITY>::TaskQueue(int64_t c) {
   assert(c && (!(c & (c-1))));
-  unroll<0, MAX_PRIORITY, 1>([&](auto p){
+  unroll<unsigned, 0, MAX_PRIORITY, unsigned, 1>([&](auto p){
     _top[p].data.store(0, std::memory_order_relaxed);
     _bottom[p].data.store(0, std::memory_order_relaxed);
     _array[p].store(new Array{c}, std::memory_order_relaxed);
@@ -271,7 +271,7 @@ TaskQueue<T, MAX_PRIORITY>::TaskQueue(int64_t c) {
 // Destructor
 template <typename T, unsigned MAX_PRIORITY>
 TaskQueue<T, MAX_PRIORITY>::~TaskQueue() {
-  unroll<0, MAX_PRIORITY, 1>([&](auto p){
+  unroll<unsigned, 0, MAX_PRIORITY, unsigned, 1>([&](auto p){
     for(auto a : _garbage[p]) {
       delete a;
     }
@@ -302,7 +302,7 @@ bool TaskQueue<T, MAX_PRIORITY>::empty(unsigned p) const noexcept {
 template <typename T, unsigned MAX_PRIORITY>
 size_t TaskQueue<T, MAX_PRIORITY>::size() const noexcept {
   size_t s;
-  unroll<0, MAX_PRIORITY, 1>([&](auto i) { s = i ? size(i) + s : size(i); });
+  unroll<unsigned, 0, MAX_PRIORITY, unsigned, 1>([&](auto i) { s = i ? size(i) + s : size(i); });
   return s;
 }
 
@@ -412,7 +412,7 @@ T TaskQueue<T, MAX_PRIORITY>::steal(unsigned p) {
 template <typename T, unsigned MAX_PRIORITY>
 int64_t TaskQueue<T, MAX_PRIORITY>::capacity() const noexcept {
   size_t s;
-  unroll<0, MAX_PRIORITY, 1>([&](auto i) { 
+  unroll<unsigned, 0, MAX_PRIORITY, unsigned, 1>([&](auto i) { 
     s = i ? capacity(i) + s : capacity(i); 
   });
   return s;

@@ -217,24 +217,24 @@ visit_tuple(Func func, Tuple& tup, size_t idx) {
 // ----------------------------------------------------------------------------
 
 // Template unrolled looping construct.
-template<auto beg, auto end, auto step, bool valid = (beg < end)>
+template<typename T, T beg, T end, typename U, U step, bool valid = (beg < end)>
 struct Unroll {
   template<typename F>
   static void eval(F f) {
     f(beg);
-    Unroll<beg + step, end, step>::eval(f);
+    Unroll<T, beg + step, end, U, step>::eval(f);
   }
 };
 
-template<auto beg, auto end, auto step>
-struct Unroll<beg, end, step, false> {
+template<typename T, T beg, T end, typename U, U step>
+struct Unroll<T, beg, end, U, step, false> {
   template<typename F>
   static void eval(F) { }
 };
 
-template<auto beg, auto end, auto step, typename F>
+template<typename T, T beg, T end, typename U, U step, typename F>
 void unroll(F f) {
-  Unroll<beg, end, step>::eval(f);
+  Unroll<T, beg, end, U, step>::eval(f);
 }
 
 // ----------------------------------------------------------------------------
