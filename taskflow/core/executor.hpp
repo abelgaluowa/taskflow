@@ -578,7 +578,7 @@ class Executor {
     a @c std::nullopt, or the value returned by the callable.
 
     @code{.cpp}
-    tf::Future<std::optional<int>> future = executor.async([](){
+    tf::Future<absl::optional<int>> future = executor.async([](){
       std::cout << "create an asynchronous task and returns 1\n";
       return 1;
     });
@@ -611,7 +611,7 @@ class Executor {
     a @c std::nullopt, or the value returned by the callable.
 
     @code{.cpp}
-    tf::Future<std::optional<int>> future = executor.named_async("name", [](){
+    tf::Future<absl::optional<int>> future = executor.named_async("name", [](){
       std::cout << "create an asynchronous task with a name and returns 1\n";
       return 1;
     });
@@ -825,7 +825,7 @@ auto Executor::named_async(const std::string& name, F&& f, ArgsT&&... args) {
   _increment_topology();
 
   using T = absl::base_internal::invoke_result_t<F, ArgsT...>;
-  using R = neo::conditional_t<std::is_same<T, void>::value, void, std::optional<T>>;
+  using R = neo::conditional_t<std::is_same<T, void>::value, void, absl::optional<T>>;
 
   std::promise<R> p;
 
@@ -844,7 +844,7 @@ auto Executor::named_async(const std::string& name, F&& f, ArgsT&&... args) {
         p.object.set_value();
       }
       else {
-        p.object.set_value(cancel ? std::nullopt : std::make_optional(f(args...)));
+        p.object.set_value(cancel ? std::nullopt : absl::make_optional(f(args...)));
       }
     },
     std::move(tpg)
@@ -2024,7 +2024,7 @@ auto Subflow::_named_async(
   _parent->_join_counter.fetch_add(1);
 
   using T = absl::base_internal::invoke_result_t<F, ArgsT...>;
-  using R = neo::conditional_t<std::is_same<T, void>::value, void, std::optional<T>>;
+  using R = neo::conditional_t<std::is_same<T, void>::value, void, absl::optional<T>>;
 
   std::promise<R> p;
 
@@ -2043,7 +2043,7 @@ auto Subflow::_named_async(
         p.object.set_value();
       }
       else {
-        p.object.set_value(cancel ? std::nullopt : std::make_optional(f(args...)));
+        p.object.set_value(cancel ? std::nullopt : absl::make_optional(f(args...)));
       }
     },
     std::move(tpg)

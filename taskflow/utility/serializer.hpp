@@ -24,7 +24,7 @@
 #include <array>
 #include <string>
 #include <variant>
-#include <optional>
+#include "absl/types/optional.h"
 
 namespace tf {
 
@@ -109,12 +109,12 @@ struct is_std_variant : std::false_type {};
 template <typename... ArgsT>
 struct is_std_variant <std::variant<ArgsT...>> : std::true_type {};
 
-// std::optional
+// absl::optional
 template <typename T>
 struct is_std_optional : std::false_type {};
 
 template <typename... ArgsT>
-struct is_std_optional <std::optional<ArgsT...>> : std::true_type {};
+struct is_std_optional <absl::optional<ArgsT...>> : std::true_type {};
 
 // std::unique_ptr
 template <typename T>

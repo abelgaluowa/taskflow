@@ -26,9 +26,9 @@
 #include <array>
 #include <string>
 #include <variant>
-#include <optional>
 #include "os.hpp"
 #include "type.hpp"
+#include "absl/types/optional.h"
 
 namespace tf {
 

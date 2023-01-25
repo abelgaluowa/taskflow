@@ -807,7 +807,7 @@ inline void TFProfObserver::summary(std::ostream& os) const {
   using namespace std::chrono;
   
   Summary summary;
-  std::optional<observer_stamp_t> view_beg, view_end;
+  absl::optional<observer_stamp_t> view_beg, view_end;
 
   // find the first non-empty worker
   size_t first;
