@@ -273,9 +273,9 @@ class DataPipeline {
   public:
   
   /**
-  @brief internal storage type for each data token (default std::variant)
+  @brief internal storage type for each data token (default absl::variant)
   */
-  using data_t = unique_variant_t<std::variant<neo::conditional_t<
+  using data_t = unique_variant_t<absl::variant<neo::conditional_t<
     std::is_void<typename Ps::output_t>::value,
     std::monostate, 
     neo::decay_t<typename Ps::output_t>>...

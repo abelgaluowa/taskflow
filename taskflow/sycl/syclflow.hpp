@@ -33,7 +33,7 @@ class syclFlow {
     Internal(Executor& e) : executor {e} {}
   };
 
-  using handle_t = std::variant<External, Internal>;
+  using handle_t = absl::variant<External, Internal>;
 
   public:
    

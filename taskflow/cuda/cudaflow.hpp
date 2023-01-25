@@ -68,7 +68,7 @@ class cudaFlow {
     Executor& executor;
   };
 
-  using handle_t = std::variant<External, Internal>;
+  using handle_t = absl::variant<External, Internal>;
   
   // variant index
   constexpr static auto EXTERNAL = get_index_v<External, handle_t>;

@@ -381,7 +381,7 @@ class Node {
     std::unique_ptr<CustomGraphBase> graph;
   };
 
-  using handle_t = std::variant<
+  using handle_t = absl::variant<
     std::monostate,  // placeholder
     Static,          // static tasking
     Dynamic,         // dynamic tasking

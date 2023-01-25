@@ -573,7 +573,7 @@ class Future : public std::future<T>  {
   friend class Executor;
   friend class Subflow;
 
-  using handle_t = std::variant<
+  using handle_t = absl::variant<
     std::monostate, std::weak_ptr<Topology>, std::weak_ptr<AsyncTopology>
   >;
 

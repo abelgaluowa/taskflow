@@ -74,9 +74,9 @@ class cudaFlowCapturer {
   struct Proxy {
   };
 
-  using handle_t = std::variant<External, Internal, Proxy>;
+  using handle_t = absl::variant<External, Internal, Proxy>;
 
-  using Optimizer = std::variant<
+  using Optimizer = absl::variant<
     cudaRoundRobinCapturing,
     cudaSequentialCapturing,
     cudaLinearCapturing

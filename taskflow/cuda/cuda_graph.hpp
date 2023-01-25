@@ -674,7 +674,7 @@ class cudaNode {
     size_t idx;
   };
 
-  using handle_t = std::variant<
+  using handle_t = absl::variant<
     Empty,
     Host,
     Memset,

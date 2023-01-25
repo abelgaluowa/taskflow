@@ -25,10 +25,10 @@
 #include <cmath>
 #include <array>
 #include <string>
-#include <variant>
 #include "os.hpp"
 #include "type.hpp"
 #include "absl/types/optional.h"
+#include "absl/types/variant.h"
 
 namespace tf {
 
@@ -107,7 +107,7 @@ auto make_moc(T&& m)-> MoC<T> {
 //Visitors(Ts...) -> Visitors<Ts...>;
 
 // ----------------------------------------------------------------------------
-// std::variant
+// absl::variant
 // ----------------------------------------------------------------------------
 template <typename T, typename>
 struct get_index;
@@ -122,7 +122,7 @@ template <size_t I, typename T, typename U, typename... Ts>
 struct get_index_impl<I, T, U, Ts...> : get_index_impl<I+1, T, Ts...>{};
 
 template <typename T, typename... Ts>
-struct get_index<T, std::variant<Ts...>> : get_index_impl<0, T, Ts...>{};
+struct get_index<T, absl::variant<Ts...>> : get_index_impl<0, T, Ts...>{};
 
 template <typename T, typename... Ts>
 constexpr auto get_index_v = get_index<T, Ts...>::value;
@@ -253,7 +253,7 @@ template <typename T>
 struct unique_variant;
 
 template <typename... Ts>
-struct unique_variant<std::variant<Ts...>> : filter_duplicates<std::variant<>, Ts...> {};
+struct unique_variant<absl::variant<Ts...>> : filter_duplicates<absl::variant<>, Ts...> {};
 
 template <typename T>
 using unique_variant_t = typename unique_variant<T>::type;

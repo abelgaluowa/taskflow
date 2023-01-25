@@ -23,8 +23,8 @@
 #include <cmath>
 #include <array>
 #include <string>
-#include <variant>
 #include "absl/types/optional.h"
+#include "absl/types/variant.h"
 
 namespace tf {
 
@@ -102,12 +102,12 @@ struct is_std_unordered_set : std::false_type {};
 template <typename... ArgsT>
 struct is_std_unordered_set <std::unordered_set<ArgsT...>> : std::true_type {};
 
-// std::variant
+// absl::variant
 template <typename T>
 struct is_std_variant : std::false_type {};
 
 template <typename... ArgsT>
-struct is_std_variant <std::variant<ArgsT...>> : std::true_type {};
+struct is_std_variant <absl::variant<ArgsT...>> : std::true_type {};
 
 // absl::optional
 template <typename T>
@@ -657,14 +657,14 @@ class Deserializer {
       size_t I = 0, typename... ArgsT,
       neo::enable_if_t<I==sizeof...(ArgsT)>* = nullptr
     >
-    SizeType _variant_helper(size_t, std::variant<ArgsT...>&);
+    SizeType _variant_helper(size_t, absl::variant<ArgsT...>&);
 
     // Function: _variant_helper
     template <
       size_t I = 0, typename... ArgsT,
       neo::enable_if_t<I<sizeof...(ArgsT)>* = nullptr
     >
-    SizeType _variant_helper(size_t, std::variant<ArgsT...>&);
+    SizeType _variant_helper(size_t, absl::variant<ArgsT...>&);
 
     template <typename T,
       neo::enable_if_t<std::is_arithmetic<neo::decay_t<T>>::value, void>* = nullptr
@@ -767,16 +767,16 @@ SizeType Deserializer<Stream, SizeType>::operator() (T&&... items) {
 // Function: _variant_helper
 template <typename Stream, typename SizeType>
 template <size_t I, typename... ArgsT, neo::enable_if_t<I==sizeof...(ArgsT)>*>
-SizeType Deserializer<Stream, SizeType>::_variant_helper(size_t, std::variant<ArgsT...>&) {
+SizeType Deserializer<Stream, SizeType>::_variant_helper(size_t, absl::variant<ArgsT...>&) {
   return 0;
 }
 
 // Function: _variant_helper
 template <typename Stream, typename SizeType>
 template <size_t I, typename... ArgsT, neo::enable_if_t<I<sizeof...(ArgsT)>*>
-SizeType Deserializer<Stream, SizeType>::_variant_helper(size_t i, std::variant<ArgsT...>& v) {
+SizeType Deserializer<Stream, SizeType>::_variant_helper(size_t i, absl::variant<ArgsT...>& v) {
   if(i == 0) {
-    using type = ExtractType_t<I, std::variant<ArgsT...>>;
+    using type = ExtractType_t<I, absl::variant<ArgsT...>>;
     if(v.index() != I) {
       static_assert(
         std::is_default_constructible<type>::value,

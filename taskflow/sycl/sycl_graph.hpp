@@ -72,7 +72,7 @@ class syclNode {
     CGH(F&& func) : work {std::forward<F>(func)} {}
   };
 
-  using handle_t = std::variant<
+  using handle_t = absl::variant<
     Empty,
     CGH
   >;
