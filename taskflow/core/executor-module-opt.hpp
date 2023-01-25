@@ -741,7 +741,7 @@ auto Executor::named_async(const std::string& name, F&& f, ArgsT&&... args) {
 
   _increment_topology();
 
-  using T = std::invoke_result_t<F, ArgsT...>;
+  using T = absl::base_internal::invoke_result_t<F, ArgsT...>;
   using R = neo::conditional_t<std::is_same<T, void>::value, void, std::optional<T>>;
 
   std::promise<R> p;
@@ -1906,7 +1906,7 @@ auto Subflow::_named_async(
 
   _parent->_join_counter.fetch_add(1);
 
-  using T = std::invoke_result_t<F, ArgsT...>;
+  using T = absl::base_internal::invoke_result_t<F, ArgsT...>;
   using R = neo::conditional_t<std::is_same<T, void>::value, void, std::optional<T>>;
 
   std::promise<R> p;

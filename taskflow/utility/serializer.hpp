@@ -518,7 +518,7 @@ template <typename T,
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   using U = neo::decay_t<T>;
-  return _save(static_cast<std::underlying_type_t<U>>(t));
+  return _save(static_cast<neo::underlying_type_t<U>>(t));
 }
 
 // duration data type
@@ -964,7 +964,7 @@ template <typename T,
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
   using U = neo::decay_t<T>;
-  std::underlying_type_t<U> k;
+  neo::underlying_type_t<U> k;
   auto sz = _load(k);
   t = static_cast<U>(k);
   return sz;

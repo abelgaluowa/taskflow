@@ -160,7 +160,7 @@ template<unsigned nt, unsigned vt, unsigned vt0 = vt, typename I, typename O>
 __device__ auto cuda_transform_mem_to_reg_strided(
   I mem, unsigned tid, unsigned count, O op
 ) {
-  using T = std::invoke_result_t<O, typename std::iterator_traits<I>::value_type>;
+  using T = absl::base_internal::invoke_result_t<O, typename std::iterator_traits<I>::value_type>;
   cudaArray<T, vt> x;
   cuda_strided_iterate<nt, vt, vt0>(
     [&](auto i, auto j) { x[i] = op(mem[j]); }, tid, count
