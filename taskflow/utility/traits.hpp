@@ -196,16 +196,20 @@ using stateful_index_t = typename stateful_index<B, E, S>::type;
 // ----------------------------------------------------------------------------
 // visit a tuple with a functor at runtime
 // ----------------------------------------------------------------------------
+template <typename Func, typename Tuple, size_t N>
+neo::enable_if_t<N >= std::tuple_size<Tuple>::value>
+visit_tuple(Func func, Tuple& tup, size_t idx) {
+    assert(N < std::tuple_size<Tuple>::value);
+}
 
 template <typename Func, typename Tuple, size_t N = 0>
-void visit_tuple(Func func, Tuple& tup, size_t idx) {
+neo::enable_if_t<N < std::tuple_size<Tuple>::value>
+visit_tuple(Func func, Tuple& tup, size_t idx) {
   if (N == idx) {
     absl::base_internal::invoke(func, std::get<N>(tup));
     return;
   }
-  if constexpr (N + 1 < std::tuple_size<Tuple>::value) {
-    return visit_tuple<Func, Tuple, N + 1>(func, tup, idx);
-  }
+  return visit_tuple<Func, Tuple, N + 1>(func, tup, idx);
 }
 
 // ----------------------------------------------------------------------------
