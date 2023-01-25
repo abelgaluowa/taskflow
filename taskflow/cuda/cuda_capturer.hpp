@@ -1056,19 +1056,19 @@ class cudaFlowCapturer {
 
 // constructs a cudaFlow capturer from a taskflow
 inline cudaFlowCapturer::cudaFlowCapturer(cudaGraph& g) :
-  _handle {std::in_place_type_t<Proxy>{}},
+  _handle {absl::in_place_type_t<Proxy>{}},
   _graph  {g} {
 }
 
 // constructs a cudaFlow capturer from a taskflow
 inline cudaFlowCapturer::cudaFlowCapturer(cudaGraph& g, Executor& e) :
-  _handle {std::in_place_type_t<Internal>{}, e},
+  _handle {absl::in_place_type_t<Internal>{}, e},
   _graph  {g} {
 }
 
 // constructs a standalone cudaFlow capturer
 inline cudaFlowCapturer::cudaFlowCapturer() :
-  _handle {std::in_place_type_t<External>{}},
+  _handle {absl::in_place_type_t<External>{}},
   _graph  {std::get_if<External>(&_handle)->graph} {
 }
 
@@ -1102,7 +1102,7 @@ template <typename C, neo::enable_if_t<
 >
 cudaTask cudaFlowCapturer::on(C&& callable) {
   auto node = _graph.emplace_back(_graph,
-    std::in_place_type_t<cudaNode::Capture>{}, std::forward<C>(callable)
+    absl::in_place_type_t<cudaNode::Capture>{}, std::forward<C>(callable)
   );
   return cudaTask(node);
 }

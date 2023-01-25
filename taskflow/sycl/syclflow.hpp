@@ -421,14 +421,14 @@ class syclFlow {
 // constructor
 inline syclFlow::syclFlow(sycl::queue& queue) :
   _queue  {queue}, 
-  _handle {std::in_place_type_t<External>{}},
+  _handle {absl::in_place_type_t<External>{}},
   _graph  {std::get_if<External>(&_handle)->graph} {
 }
 
 // Construct the syclFlow from executor (internal graph)
 inline syclFlow::syclFlow(Executor& e, syclGraph& g, sycl::queue& queue) :
   _queue  {queue},
-  _handle {std::in_place_type_t<Internal>{}, e},
+  _handle {absl::in_place_type_t<Internal>{}, e},
   _graph  {g} {
 }
 
@@ -482,7 +482,7 @@ template <typename F, neo::enable_if_t<
 >
 syclTask syclFlow::on(F&& f) {
   auto node = _graph.emplace_back(_graph, 
-    std::in_place_type_t<syclNode::CGH>{}, std::forward<F>(f)
+    absl::in_place_type_t<syclNode::CGH>{}, std::forward<F>(f)
   );
   return syclTask(node);
 }
@@ -638,7 +638,7 @@ void syclFlow::single_task(syclTask task, F&& func) {
 template <typename C, typename Q, neo::enable_if_t<is_syclflow_task<C>::value, void>*>
 Task FlowBuilder::emplace_on(C&& callable, Q&& q) {
   auto n = _graph._emplace_back(
-    std::in_place_type_t<Node::syclFlow>{},
+    absl::in_place_type_t<Node::syclFlow>{},
     [c=std::forward<C>(callable), queue=std::forward<Q>(q)] 
     (Executor& e, Node* p) mutable {
       e._invoke_syclflow_task_entry(p, c, queue);

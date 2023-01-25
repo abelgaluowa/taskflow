@@ -1162,7 +1162,7 @@ class cudaFlow {
 
 // Construct a standalone cudaFlow
 inline cudaFlow::cudaFlow() :
-  _handle {std::in_place_type_t<External>{}},
+  _handle {absl::in_place_type_t<External>{}},
   _graph  {std::get_if<External>(&_handle)->graph} {
 
   TF_CHECK_CUDA(
@@ -1173,7 +1173,7 @@ inline cudaFlow::cudaFlow() :
 
 // Construct the cudaFlow from executor (internal graph)
 inline cudaFlow::cudaFlow(cudaGraph& g, Executor& executor) :
-  _handle {std::in_place_type_t<Internal>{}, executor},
+  _handle {absl::in_place_type_t<Internal>{}, executor},
   _graph  {g} {
 
   assert(_graph._native_handle == nullptr);
@@ -1234,7 +1234,7 @@ inline void cudaFlow::dump_native_graph(std::ostream& os) const {
 inline cudaTask cudaFlow::noop() {
 
   auto node = _graph.emplace_back(
-    _graph, std::in_place_type_t<cudaNode::Empty>{}
+    _graph, absl::in_place_type_t<cudaNode::Empty>{}
   );
 
   TF_CHECK_CUDA(
@@ -1252,7 +1252,7 @@ template <typename C>
 cudaTask cudaFlow::host(C&& c) {
 
   auto node = _graph.emplace_back(
-    _graph, std::in_place_type_t<cudaNode::Host>{}, std::forward<C>(c)
+    _graph, absl::in_place_type_t<cudaNode::Host>{}, std::forward<C>(c)
   );
 
   auto h = std::get_if<cudaNode::Host>(&node->_handle);
@@ -1278,7 +1278,7 @@ cudaTask cudaFlow::kernel(
 ) {
 
   auto node = _graph.emplace_back(
-    _graph, std::in_place_type_t<cudaNode::Kernel>{}, (void*)f
+    _graph, absl::in_place_type_t<cudaNode::Kernel>{}, (void*)f
   );
 
   cudaKernelNodeParams p;
@@ -1307,7 +1307,7 @@ template <typename T, neo::enable_if_t<
 cudaTask cudaFlow::zero(T* dst, size_t count) {
 
   auto node = _graph.emplace_back(
-    _graph, std::in_place_type_t<cudaNode::Memset>{}
+    _graph, absl::in_place_type_t<cudaNode::Memset>{}
   );
 
   auto p = cuda_get_zero_parms(dst, count);
@@ -1329,7 +1329,7 @@ template <typename T, neo::enable_if_t<
 cudaTask cudaFlow::fill(T* dst, T value, size_t count) {
 
   auto node = _graph.emplace_back(
-    _graph, std::in_place_type_t<cudaNode::Memset>{}
+    _graph, absl::in_place_type_t<cudaNode::Memset>{}
   );
 
   auto p = cuda_get_fill_parms(dst, value, count);
@@ -1352,7 +1352,7 @@ template <
 cudaTask cudaFlow::copy(T* tgt, const T* src, size_t num) {
 
   auto node = _graph.emplace_back(
-    _graph, std::in_place_type_t<cudaNode::Memcpy>{}
+    _graph, absl::in_place_type_t<cudaNode::Memcpy>{}
   );
 
   auto p = cuda_get_copy_parms(tgt, src, num);
@@ -1371,7 +1371,7 @@ cudaTask cudaFlow::copy(T* tgt, const T* src, size_t num) {
 inline cudaTask cudaFlow::memset(void* dst, int ch, size_t count) {
 
   auto node = _graph.emplace_back(
-    _graph, std::in_place_type_t<cudaNode::Memset>{}
+    _graph, absl::in_place_type_t<cudaNode::Memset>{}
   );
 
   auto p = cuda_get_memset_parms(dst, ch, count);
@@ -1390,7 +1390,7 @@ inline cudaTask cudaFlow::memset(void* dst, int ch, size_t count) {
 inline cudaTask cudaFlow::memcpy(void* tgt, const void* src, size_t bytes) {
 
   auto node = _graph.emplace_back(
-    _graph, std::in_place_type_t<cudaNode::Memcpy>{}
+    _graph, absl::in_place_type_t<cudaNode::Memcpy>{}
   );
 
   auto p = cuda_get_memcpy_parms(tgt, src, bytes);
@@ -1571,7 +1571,7 @@ cudaTask cudaFlow::capture(C&& c) {
 
   // insert a subflow node
   auto node = _graph.emplace_back(
-    _graph, std::in_place_type_t<cudaNode::Subflow>{}
+    _graph, absl::in_place_type_t<cudaNode::Subflow>{}
   );
 
   // construct a captured flow from the callable
@@ -1679,7 +1679,7 @@ template <typename C, typename D,
 >
 Task FlowBuilder::emplace_on(C&& c, D&& d) {
   auto n = _graph._emplace_back(
-    std::in_place_type_t<Node::cudaFlow>{},
+    absl::in_place_type_t<Node::cudaFlow>{},
     [c=std::forward<C>(c), d=std::forward<D>(d)] (Executor& e, Node* p) mutable {
       cudaScopedDevice ctx(d);
       e._invoke_cudaflow_task_entry(p, c);

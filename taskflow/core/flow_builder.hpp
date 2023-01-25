@@ -741,7 +741,7 @@ inline FlowBuilder::FlowBuilder(Graph& graph) :
 template <typename C, neo::enable_if_t<is_static_task<C>::value, void>*>
 Task FlowBuilder::emplace(C&& c) {
   return Task(_graph._emplace_back(
-    std::in_place_type_t<Node::Static>{}, std::forward<C>(c)
+    absl::in_place_type_t<Node::Static>{}, std::forward<C>(c)
   ));
 }
 
@@ -749,7 +749,7 @@ Task FlowBuilder::emplace(C&& c) {
 template <typename C, neo::enable_if_t<is_dynamic_task<C>::value, void>*>
 Task FlowBuilder::emplace(C&& c) {
   return Task(_graph._emplace_back(
-    std::in_place_type_t<Node::Dynamic>{}, std::forward<C>(c)
+    absl::in_place_type_t<Node::Dynamic>{}, std::forward<C>(c)
   ));
 }
 
@@ -757,7 +757,7 @@ Task FlowBuilder::emplace(C&& c) {
 template <typename C, neo::enable_if_t<is_condition_task<C>::value, void>*>
 Task FlowBuilder::emplace(C&& c) {
   return Task(_graph._emplace_back(
-    std::in_place_type_t<Node::Condition>{}, std::forward<C>(c)
+    absl::in_place_type_t<Node::Condition>{}, std::forward<C>(c)
   ));
 }
 
@@ -765,7 +765,7 @@ Task FlowBuilder::emplace(C&& c) {
 template <typename C, neo::enable_if_t<is_multi_condition_task<C>::value, void>*>
 Task FlowBuilder::emplace(C&& c) {
   return Task(_graph._emplace_back(
-    std::in_place_type_t<Node::MultiCondition>{}, std::forward<C>(c)
+    absl::in_place_type_t<Node::MultiCondition>{}, std::forward<C>(c)
   ));
 }
 
@@ -773,7 +773,7 @@ Task FlowBuilder::emplace(C&& c) {
 template <typename C, neo::enable_if_t<is_runtime_task<C>::value, void>*>
 Task FlowBuilder::emplace(C&& c) {
   return Task(_graph._emplace_back(
-    std::in_place_type_t<Node::Runtime>{}, std::forward<C>(c)
+    absl::in_place_type_t<Node::Runtime>{}, std::forward<C>(c)
   ));
 }
 
@@ -811,7 +811,7 @@ inline void FlowBuilder::erase(Task task) {
 template <typename T>
 Task FlowBuilder::composed_of(T& object) {
   auto node = _graph._emplace_back(
-    std::in_place_type_t<Node::Module>{}, object
+    absl::in_place_type_t<Node::Module>{}, object
   );
   return Task(node);
 }
