@@ -305,6 +305,18 @@ class Serializer {
     template <typename T, typename... Args>
     SizeType accumulate(T&& t, Args&&... items);
 
+    struct Visitor{
+        template<typename T>
+        SizeType operator()(T&& t){
+            return serializer._save();
+        }
+
+        Visitor(Serializer<Stream, SizeType>& s)
+        : serializer(s){}
+        Serializer<Stream, SizeType>& serializer;
+    };
+
+
 
     template <typename T,
       neo::enable_if_t<!is_default_serializable<neo::decay_t<T>>::value, void>* = nullptr
@@ -537,8 +549,8 @@ template <typename T, neo::enable_if_t<
 >*>
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   auto sz = _save(make_size_tag(t.size()));
-  for(auto&& [k, v] : t) {
-    sz += _save(make_kv_pair(k, v));
+  for(auto&& pair : t) {
+    sz += _save(make_kv_pair(t.first, t.second));
   }
   return sz;
 }
@@ -592,7 +604,7 @@ template <typename T,
   neo::enable_if_t<is_std_optional<neo::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
-  if(bool flag = t.has_value(); flag) {
+  if(bool flag = t.has_value()) {
     return _save(flag) + _save(*t);
   }
   else {
@@ -607,7 +619,8 @@ template <typename T,
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
   return _save(t.index()) +
-         std::visit([&] (auto&& arg){ return _save(arg);}, t);
+         // absl::visit([&] (auto&& arg){ return _save(arg);}, t);
+         absl::visit(Visitor{*this}, t);
 }
 
 // tuple type
@@ -709,6 +722,13 @@ class Deserializer {
   private:
 
     Stream& _stream;
+
+    // helper
+    template <typename T>
+    SizeType accumulate(T&& t);
+
+    template <typename T, typename... Args>
+    SizeType accumulate(T&& t, Args&&... items);
 
     // Function: _variant_helper
     template <
@@ -831,9 +851,22 @@ Deserializer<Stream, SizeType>::Deserializer(Stream& stream) : _stream(stream) {
 
 // Operator ()
 template <typename Stream, typename SizeType>
+template <typename T>
+SizeType Deserializer<Stream, SizeType>::accumulate(T&& t) {
+    return _load(std::forward<T>(t));
+}
+
+template <typename Stream, typename SizeType>
+template <typename T, typename... Args>
+SizeType Deserializer<Stream, SizeType>::accumulate(T&& t, Args&&... items) {
+    return _load(std::forward<T>(t)) + accumulate(std::forward<Args>(items)...);
+}
+
+template <typename Stream, typename SizeType>
 template <typename... T>
 SizeType Deserializer<Stream, SizeType>::operator() (T&&... items) {
-  return (_load(std::forward<T>(items)) + ...);
+  // return (_load(std::forward<T>(items)) + ...);
+  return accumulate(std::forward<T>(items)...);
 }
 
 // Function: _variant_helper
