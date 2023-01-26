@@ -322,7 +322,14 @@ class Serializer {
     SizeType _save(T&&);
 
     template <typename T,
-      neo::enable_if_t<is_std_vector<neo::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_vector<neo::decay_t<T>>::value, void>* = nullptr,
+      neo::enable_if_t<std::is_arithmetic<typename neo::decay_t<T>::value_type>::value, void>* = nullptr
+    >
+    SizeType _save(T&&);
+
+    template <typename T,
+      neo::enable_if_t<is_std_vector<neo::decay_t<T>>::value, void>* = nullptr,
+      neo::enable_if_t<!std::is_arithmetic<typename neo::decay_t<T>::value_type>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
@@ -392,7 +399,14 @@ class Serializer {
     SizeType _save(T&&);
 
     template <typename T,
-      neo::enable_if_t<is_std_array<neo::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_array<neo::decay_t<T>>::value, void>* = nullptr,
+      neo::enable_if_t<std::is_arithmetic<typename neo::decay_t<T>::value_type>::value, void>* = nullptr
+    >
+    SizeType _save(T&&);
+
+    template <typename T,
+      neo::enable_if_t<is_std_array<neo::decay_t<T>>::value, void>* = nullptr,
+      neo::enable_if_t<!std::is_arithmetic<typename neo::decay_t<T>::value_type>::value, void>* = nullptr
     >
     SizeType _save(T&&);
 
@@ -452,28 +466,40 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // std::vector
 template <typename Stream, typename SizeType>
 template <typename T,
-  neo::enable_if_t<is_std_vector<neo::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_vector<neo::decay_t<T>>::value, void>*,
+  neo::enable_if_t<std::is_arithmetic<typename neo::decay_t<T>::value_type>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 
   using U = neo::decay_t<T>;
 
   auto sz = _save(make_size_tag(t.size()));
+  _stream.write(
+          reinterpret_cast<const char*>(t.data()),
+          t.size() * sizeof(typename U::value_type)
+          );
+  sz += t.size() * sizeof(typename U::value_type);
 
-  if constexpr (std::is_arithmetic<typename U::value_type>::value) {
-    _stream.write(
-      reinterpret_cast<const char*>(t.data()),
-      t.size() * sizeof(typename U::value_type)
-    );
-    sz += t.size() * sizeof(typename U::value_type);
-  } else {
-    for(auto&& item : t) {
+  return sz;
+}
+
+template <typename Stream, typename SizeType>
+template <typename T,
+  neo::enable_if_t<is_std_vector<neo::decay_t<T>>::value, void>*,
+  neo::enable_if_t<!std::is_arithmetic<typename neo::decay_t<T>::value_type>::value, void>*
+>
+SizeType Serializer<Stream, SizeType>::_save(T&& t) {
+
+  using U = neo::decay_t<T>;
+
+  auto sz = _save(make_size_tag(t.size()));
+  for(auto&& item : t) {
       sz += _save(item);
-    }
   }
 
   return sz;
 }
+
 
 // std::list and std::deque
 template <typename Stream, typename SizeType>
@@ -601,7 +627,8 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 // array
 template <typename Stream, typename SizeType>
 template <typename T,
-  neo::enable_if_t<is_std_array<neo::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_array<neo::decay_t<T>>::value, void>*,
+  neo::enable_if_t<std::is_arithmetic<typename neo::decay_t<T>::value_type>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 
@@ -609,21 +636,31 @@ SizeType Serializer<Stream, SizeType>::_save(T&& t) {
 
   static_assert(std::tuple_size<U>::value > 0, "Array size can't be zero");
 
-  SizeType sz;
+  _stream.write(reinterpret_cast<const char*>(t.data()), sizeof(t));
+  SizeType sz = sizeof(t);
 
-  if constexpr(std::is_arithmetic<typename U::value_type>::value) {
-    _stream.write(reinterpret_cast<const char*>(t.data()), sizeof(t));
-    sz = sizeof(t);
-  }
-  else {
-    sz = 0;
-    for(auto&& item : t) {
+  return sz;
+}
+
+template <typename Stream, typename SizeType>
+template <typename T,
+  neo::enable_if_t<is_std_array<neo::decay_t<T>>::value, void>*,
+  neo::enable_if_t<!std::is_arithmetic<typename neo::decay_t<T>::value_type>::value, void>*
+>
+SizeType Serializer<Stream, SizeType>::_save(T&& t) {
+
+  using U = neo::decay_t<T>;
+
+  static_assert(std::tuple_size<U>::value > 0, "Array size can't be zero");
+
+  SizeType sz = 0;
+  for(auto&& item : t) {
       sz += _save(item);
-    }
   }
 
   return sz;
 }
+
 
 // custom save method
 template <typename Stream, typename SizeType>
@@ -698,7 +735,14 @@ class Deserializer {
     SizeType _load(T&&);
 
     template <typename T,
-      neo::enable_if_t<is_std_vector<neo::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_vector<neo::decay_t<T>>::value, void>* = nullptr,
+      neo::enable_if_t<std::is_arithmetic<typename neo::decay_t<T>::value_type>::value, void>* = nullptr
+    >
+    SizeType _load(T&&);
+
+    template <typename T,
+      neo::enable_if_t<is_std_vector<neo::decay_t<T>>::value, void>* = nullptr,
+      neo::enable_if_t<!std::is_arithmetic<typename neo::decay_t<T>::value_type>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
@@ -763,7 +807,14 @@ class Deserializer {
     SizeType _load(T&&);
 
     template <typename T,
-      neo::enable_if_t<is_std_array<neo::decay_t<T>>::value, void>* = nullptr
+      neo::enable_if_t<is_std_array<neo::decay_t<T>>::value, void>* = nullptr,
+      neo::enable_if_t<std::is_arithmetic<typename neo::decay_t<T>::value_type>::value, void>* = nullptr
+    >
+    SizeType _load(T&&);
+
+    template <typename T,
+      neo::enable_if_t<is_std_array<neo::decay_t<T>>::value, void>* = nullptr,
+      neo::enable_if_t<!std::is_arithmetic<typename neo::decay_t<T>::value_type>::value, void>* = nullptr
     >
     SizeType _load(T&&);
 
@@ -837,7 +888,8 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // std::vector
 template <typename Stream, typename SizeType>
 template <typename T,
-  neo::enable_if_t<is_std_vector<neo::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_vector<neo::decay_t<T>>::value, void>*,
+  neo::enable_if_t<std::is_arithmetic<typename neo::decay_t<T>::value_type>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
@@ -847,17 +899,31 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
   auto sz = _load(make_size_tag(num_data));
 
-  if constexpr(std::is_arithmetic<typename U::value_type>::value) {
-    t.resize(num_data);
-    _stream.read(reinterpret_cast<char*>(t.data()), num_data * sizeof(typename U::value_type));
-    sz += num_data * sizeof(typename U::value_type);
-  }
-  else {
-    t.resize(num_data);
-    for(auto && v : t) {
+  t.resize(num_data);
+  _stream.read(reinterpret_cast<char*>(t.data()), num_data * sizeof(typename U::value_type));
+  sz += num_data * sizeof(typename U::value_type);
+
+  return sz;
+}
+
+template <typename Stream, typename SizeType>
+template <typename T,
+  neo::enable_if_t<is_std_vector<neo::decay_t<T>>::value, void>*,
+  neo::enable_if_t<!std::is_arithmetic<typename neo::decay_t<T>::value_type>::value, void>*
+>
+SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
+
+  using U = neo::decay_t<T>;
+
+  typename U::size_type num_data;
+
+  auto sz = _load(make_size_tag(num_data));
+
+  t.resize(num_data);
+  for(auto && v : t) {
       sz += _load(v);
-    }
   }
+
   return sz;
 }
 
@@ -1068,7 +1134,8 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 // array
 template <typename Stream, typename SizeType>
 template <typename T,
-  neo::enable_if_t<is_std_array<neo::decay_t<T>>::value, void>*
+  neo::enable_if_t<is_std_array<neo::decay_t<T>>::value, void>*,
+  neo::enable_if_t<std::is_arithmetic<typename neo::decay_t<T>::value_type>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
@@ -1076,21 +1143,31 @@ SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
 
   static_assert(std::tuple_size<U>::value > 0, "Array size can't be zero");
 
-  SizeType sz;
+  _stream.read(reinterpret_cast<char*>(t.data()), sizeof(t));
+  SizeType sz = sizeof(t);
 
-  if constexpr(std::is_arithmetic<typename U::value_type>::value) {
-    _stream.read(reinterpret_cast<char*>(t.data()), sizeof(t));
-    sz = sizeof(t);
-  }
-  else {
-    sz = 0;
-    for(auto && v : t) {
+  return sz;
+}
+
+template <typename Stream, typename SizeType>
+template <typename T,
+  neo::enable_if_t<is_std_array<neo::decay_t<T>>::value, void>*,
+  neo::enable_if_t<!std::is_arithmetic<typename neo::decay_t<T>::value_type>::value, void>*
+>
+SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
+
+  using U = neo::decay_t<T>;
+
+  static_assert(std::tuple_size<U>::value > 0, "Array size can't be zero");
+
+  SizeType sz = 0;
+  for(auto && v : t) {
       sz += _load(v);
-    }
   }
 
   return sz;
 }
+
 
 // custom save method
 template <typename Stream, typename SizeType>
