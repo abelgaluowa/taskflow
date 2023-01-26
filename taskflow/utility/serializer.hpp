@@ -312,9 +312,22 @@ class Serializer {
         }
 
         Visitor(Serializer<Stream, SizeType>& s)
-        : serializer(s){}
+            : serializer(s){}
         Serializer<Stream, SizeType>& serializer;
     };
+
+    /// tuple helper
+    struct Traversal{
+        template<typename... Args>
+        SizeType operator()(Args&&... args){
+            return serializer.accumulate(std::forward<Args>(args)...);
+        }
+
+        Traversal(Serializer<Stream, SizeType>& s)
+            : serializer(s){}
+        Serializer<Stream, SizeType>& serializer;
+    };
+
 
 
 
@@ -629,12 +642,7 @@ template <typename T,
   neo::enable_if_t<is_std_tuple<neo::decay_t<T>>::value, void>*
 >
 SizeType Serializer<Stream, SizeType>::_save(T&& t) {
-  return std::apply(
-    [&] (auto&&... args) {
-      return (_save(std::forward<decltype(args)>(args)) + ... + 0);
-    },
-    std::forward<T>(t)
-  );
+  return absl::apply( Traversal(*this), std::forward<T>(t));
 }
 
 // array
@@ -729,6 +737,18 @@ class Deserializer {
 
     template <typename T, typename... Args>
     SizeType accumulate(T&& t, Args&&... items);
+
+    // tuple helper
+    struct Traversal{
+        template<typename... Args>
+        SizeType operator()(Args&&... args){
+            return serializer.accumulate(std::forward<Args>(args)...);
+        }
+
+        Traversal(Deserializer<Stream, SizeType>& s)
+            : serializer(s){}
+        Deserializer<Stream, SizeType>& serializer;
+    };
 
     // Function: _variant_helper
     template <
@@ -889,7 +909,7 @@ SizeType Deserializer<Stream, SizeType>::_variant_helper(size_t i, absl::variant
       );
       v = type();
     }
-    return _load(*std::get_if<type>(&v));
+    return _load(*absl::get_if<type>(&v));
   }
   return _variant_helper<I+1, ArgsT...>(i-1, v);
 }
@@ -1156,12 +1176,7 @@ template <typename T,
   neo::enable_if_t<is_std_tuple<neo::decay_t<T>>::value, void>*
 >
 SizeType Deserializer<Stream, SizeType>::_load(T&& t) {
-  return std::apply(
-    [&] (auto&&... args) {
-      return (_load(std::forward<decltype(args)>(args)) + ... + 0);
-    },
-    std::forward<T>(t)
-  );
+  return absl::apply(Traversal(*this), std::forward<T>(t));
 }
 
 // array
