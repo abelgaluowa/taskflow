@@ -833,7 +833,7 @@ auto Executor::named_async(const std::string& name, F&& f, ArgsT&&... args) {
 
   Future<R> fu(p.get_future(), tpg);
 
-  auto node = node_pool.animate(
+  auto node = node_pool().animate(
     absl::in_place_type_t<Node::Async>{},
     [p=make_moc(std::move(p)), f=std::forward<F>(f), args...]
     (bool cancel) mutable {
@@ -876,7 +876,7 @@ void Executor::named_silent_async(
 
   _increment_topology();
 
-  Node* node = node_pool.animate(
+  Node* node = node_pool().animate(
     absl::in_place_type_t<Node::SilentAsync>{},
     [f=std::forward<F>(f), args...] () mutable {
       f(args...);
@@ -1495,7 +1495,7 @@ inline void Executor::_tear_down_async(Node* node) {
   else {
     _decrement_topology_and_notify();
   }
-  node_pool.recycle(node);
+  node_pool().recycle(node);
 }
 
 // Proecdure: _tear_down_invoke
@@ -2032,7 +2032,7 @@ auto Subflow::_named_async(
 
   Future<R> fu(p.get_future(), tpg);
 
-  auto node = node_pool.animate(
+  auto node = node_pool().animate(
     absl::in_place_type_t<Node::Async>{},
     [p=make_moc(std::move(p)), f=std::forward<F>(f), args...]
     (bool cancel) mutable {
@@ -2072,7 +2072,7 @@ void Subflow::_named_silent_async(
 
   _parent->_join_counter.fetch_add(1);
 
-  auto node = node_pool.animate(
+  auto node = node_pool().animate(
     absl::in_place_type_t<Node::SilentAsync>{},
     [f=std::forward<F>(f), args...] () mutable {
       f(args...);

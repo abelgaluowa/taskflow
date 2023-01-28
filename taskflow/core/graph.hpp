@@ -466,7 +466,27 @@ class Node {
 /**
 @private
 */
-inline ObjectPool<Node> node_pool;
+
+// inline ObjectPool<Node> node_pool;
+inline ObjectPool<Node>& node_pool()
+{
+    static ObjectPool<Node> pool;
+    return pool;
+}
+
+/*
+// template solution
+template<typename Dummy>
+struct np_impl{
+    static ObjectPool<Node> node_pool;
+};
+
+template<typename Dummy>
+ObjectPool<Node> np_impl<Dummy>::node_pool = ObjectPool<Node>{};
+
+using Neo = np_impl<void>;
+// usage: Neo::node_pool;
+*/
 
 // ----------------------------------------------------------------------------
 // Definition for Node::Static
@@ -608,7 +628,7 @@ inline Node::~Node() {
 
     //auto& np = Graph::_node_pool();
     for(i=0; i<nodes.size(); ++i) {
-      node_pool.recycle(nodes[i]);
+      node_pool().recycle(nodes[i]);
     }
   }
 }
@@ -752,7 +772,7 @@ inline void Graph::clear() {
 // Procedure: clear
 inline void Graph::_clear() {
   for(auto node : _nodes) {
-    node_pool.recycle(node);
+    node_pool().recycle(node);
   }
   _nodes.clear();
 }
@@ -765,7 +785,7 @@ inline void Graph::_clear_detached() {
   });
 
   for(auto itr = mid; itr != _nodes.end(); ++itr) {
-    node_pool.recycle(*itr);
+    node_pool().recycle(*itr);
   }
   _nodes.resize(std::distance(_nodes.begin(), mid));
 }
@@ -782,7 +802,7 @@ inline void Graph::_merge(Graph&& g) {
 inline void Graph::_erase(Node* node) {
   if(auto I = std::find(_nodes.begin(), _nodes.end(), node); I != _nodes.end()) {
     _nodes.erase(I);
-    node_pool.recycle(node);
+    node_pool().recycle(node);
   }
 }
 
@@ -799,13 +819,13 @@ inline bool Graph::empty() const {
 // Function: emplace_back
 template <typename ...ArgsT>
 Node* Graph::_emplace_back(ArgsT&&... args) {
-  _nodes.push_back(node_pool.animate(std::forward<ArgsT>(args)...));
+  _nodes.push_back(node_pool().animate(std::forward<ArgsT>(args)...));
   return _nodes.back();
 }
 
 // Function: emplace_back
 inline Node* Graph::_emplace_back() {
-  _nodes.push_back(node_pool.animate());
+  _nodes.push_back(node_pool().animate());
   return _nodes.back();
 }
 
