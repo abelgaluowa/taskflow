@@ -382,7 +382,7 @@ class Node {
   };
 
   using handle_t = absl::variant<
-    std::monostate,  // placeholder
+    absl::monostate,  // placeholder
     Static,          // static tasking
     Dynamic,         // dynamic tasking
     Condition,       // conditional tasking
@@ -403,7 +403,7 @@ class Node {
   public:
 
   // variant index
-  constexpr static auto PLACEHOLDER     = get_index<std::monostate, handle_t>::value;
+  constexpr static auto PLACEHOLDER     = get_index<absl::monostate, handle_t>::value;
   constexpr static auto STATIC          = get_index<Static, handle_t>::value;
   constexpr static auto DYNAMIC         = get_index<Dynamic, handle_t>::value;
   constexpr static auto CONDITION       = get_index<Condition, handle_t>::value;
