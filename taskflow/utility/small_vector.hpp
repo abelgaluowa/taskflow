@@ -129,8 +129,8 @@ class SmallVectorTemplateCommon : public SmallVectorBase {
   // something else.  Use an array of char of sufficient alignment.
   
   // deprecated in c++23
-  //typedef typename std::aligned_union<1, T>::type U;
-  typedef AlignedUnionType<T> U;
+  typedef typename std::aligned_union<1, T>::type U;
+  // typedef AlignedUnionType<T> U;
 
   U FirstEl;
   // Space after 'FirstEl' is clobbered, do not add any instance vars after it.
