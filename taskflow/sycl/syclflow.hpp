@@ -643,7 +643,7 @@ Task FlowBuilder::emplace_on(C&& callable, Q&& q) {
     (Executor& e, Node* p) mutable {
       e._invoke_syclflow_task_entry(p, c, queue);
     },
-    std::make_unique<syclGraph>()
+    neo::make_unique<syclGraph>()
   );
   return Task(n);
 }

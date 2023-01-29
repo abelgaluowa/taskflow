@@ -519,7 +519,7 @@ inline Task& Task::name(const std::string& name) {
 // Function: acquire
 inline Task& Task::acquire(Semaphore& s) {
   if(!_node->_semaphores) {
-    _node->_semaphores = std::make_unique<Node::Semaphores>();
+    _node->_semaphores = neo::make_unique<Node::Semaphores>();
   }
   _node->_semaphores->to_acquire.push_back(&s);
   return *this;
@@ -529,7 +529,7 @@ inline Task& Task::acquire(Semaphore& s) {
 inline Task& Task::release(Semaphore& s) {
   if(!_node->_semaphores) {
     //_node->_semaphores.emplace();
-    _node->_semaphores = std::make_unique<Node::Semaphores>();
+    _node->_semaphores = neo::make_unique<Node::Semaphores>();
   }
   _node->_semaphores->to_release.push_back(&s);
   return *this;
@@ -542,7 +542,7 @@ inline void Task::reset() {
 
 // Procedure: reset_work
 inline void Task::reset_work() {
-  _node->_handle.emplace<std::monostate>();
+  _node->_handle.emplace<absl::monostate>();
 }
 
 // Function: name

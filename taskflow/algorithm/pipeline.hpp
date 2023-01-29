@@ -1362,7 +1362,7 @@ void ScalablePipeline<P>::reset(P first, P last) {
     _pipes[i++] = itr;
   }
 
-  _lines = std::make_unique<Line[]>(num_lines() * _pipes.size());
+  _lines = neo::make_unique<Line[]>(num_lines() * _pipes.size());
 
   reset();
 }

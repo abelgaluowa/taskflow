@@ -163,7 +163,7 @@ syclNode* syclGraph::emplace_back(ArgsT&&... args) {
 
   _state |= syclGraph::TOPOLOGY_CHANGED;
 
-  auto node = std::make_unique<syclNode>(std::forward<ArgsT>(args)...);
+  auto node = neo::make_unique<syclNode>(std::forward<ArgsT>(args)...);
   _nodes.emplace_back(std::move(node));
   return _nodes.back().get();
 

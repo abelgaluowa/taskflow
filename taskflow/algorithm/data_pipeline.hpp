@@ -277,7 +277,7 @@ class DataPipeline {
   */
   using data_t = unique_variant_t<absl::variant<neo::conditional_t<
     std::is_void<typename Ps::output_t>::value,
-    std::monostate, 
+    absl::monostate, 
     neo::decay_t<typename Ps::output_t>>...
   >>;
 

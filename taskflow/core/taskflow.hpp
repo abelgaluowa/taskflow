@@ -574,7 +574,7 @@ class Future : public std::future<T>  {
   friend class Subflow;
 
   using handle_t = absl::variant<
-    std::monostate, std::weak_ptr<Topology>, std::weak_ptr<AsyncTopology>
+    absl::monostate, std::weak_ptr<Topology>, std::weak_ptr<AsyncTopology>
   >;
 
   // variant index
@@ -642,7 +642,7 @@ template <typename T>
 bool Future<T>::cancel() {
   return std::visit([](auto&& arg){
     using P = neo::decay_t<decltype(arg)>;
-    if constexpr(std::is_same<P, std::monostate>::value) {
+    if constexpr(std::is_same<P, absl::monostate>::value) {
       return false;
     }
     else {

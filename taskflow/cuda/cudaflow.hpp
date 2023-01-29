@@ -1684,7 +1684,7 @@ Task FlowBuilder::emplace_on(C&& c, D&& d) {
       cudaScopedDevice ctx(d);
       e._invoke_cudaflow_task_entry(p, c);
     },
-    std::make_unique<cudaGraph>()
+    neo::make_unique<cudaGraph>()
   );
   return Task(n);
 }

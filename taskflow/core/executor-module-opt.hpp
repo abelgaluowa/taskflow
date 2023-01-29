@@ -1687,7 +1687,7 @@ tf::Future<void> Executor::run_until(Taskflow& f, P&& p, C&& c) {
     std::promise<void> promise;
     promise.set_value();
     _decrement_topology_and_notify();
-    return tf::Future<void>(promise.get_future(), std::monostate{});
+    return tf::Future<void>(promise.get_future(), absl::monostate{});
   }
 
   // create a topology for this run
