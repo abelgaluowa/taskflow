@@ -463,7 +463,7 @@ class TFProfObserver : public ObserverInterface {
     size_t min_span{0};
     size_t max_span{0};
 
-    std::array<TaskSummary, TASK_TYPES.size()> tsum;
+    std::array<TaskSummary, TASK_TYPES::value.size()> tsum;
 
     float avg_span() const { return total_span * 1.0f / count; }
     //return count < 2 ? 0.0f : total_delay * 1.0f / (count-1); 
@@ -471,7 +471,7 @@ class TFProfObserver : public ObserverInterface {
   
   /** @private */
   struct Summary {
-    std::array<TaskSummary, TASK_TYPES.size()> tsum;
+    std::array<TaskSummary, TASK_TYPES::value.size()> tsum;
     std::vector<WorkerSummary> wsum;
     
     void dump_tsum(std::ostream&) const;
@@ -568,11 +568,11 @@ inline void TFProfObserver::Summary::dump_tsum(std::ostream& os) const {
      << std::setw(max_w+2) << "Max (us)"
      << '\n';
 
-  for(size_t i=0; i<TASK_TYPES.size(); i++) {
+  for(size_t i=0; i<TASK_TYPES::value.size(); i++) {
     if(tsum[i].count == 0) {
       continue;
     }
-    os << std::setw(type_w) << to_string(TASK_TYPES[i])
+    os << std::setw(type_w) << to_string(TASK_TYPES::value[i])
        << std::setw(count_w+2) << tsum[i].count
        << std::setw(time_w+2) << tsum[i].total_span
        << std::setw(avg_w+2) << std::to_string(tsum[i].avg_span())
@@ -638,7 +638,7 @@ inline void TFProfObserver::Summary::dump_wsum(std::ostream& os) const {
        << std::setw(l_w+2) << ws.level;
     
     bool first = true;
-    for(size_t i=0; i<TASK_TYPES.size(); i++) {
+    for(size_t i=0; i<TASK_TYPES::value.size(); i++) {
 
       if(ws.tsum[i].count == 0) {
         continue;
@@ -647,7 +647,7 @@ inline void TFProfObserver::Summary::dump_wsum(std::ostream& os) const {
       os << (first ? std::setw(t_w) : std::setw(w_w + l_w + 2 + t_w));
       first = false;
 
-      os << to_string(TASK_TYPES[i])
+      os << to_string(TASK_TYPES::value[i])
          << std::setw(c_w+2) << ws.tsum[i].count
          << std::setw(d_w+2) << ws.tsum[i].total_span
          << std::setw(avg_w+2) << std::to_string(ws.tsum[i].avg_span())

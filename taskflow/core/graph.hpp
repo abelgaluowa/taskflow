@@ -602,7 +602,7 @@ inline Node::~Node() {
     // with older macOS versions
     // the result of std::get_if is guaranteed to be non-null
     // due to the index check above
-    auto& subgraph = std::get_if<Dynamic>(&_handle)->subgraph;
+    auto& subgraph = absl::get_if<Dynamic>(&_handle)->subgraph;
     std::vector<Node*> nodes;
     nodes.reserve(subgraph.size());
 
@@ -616,7 +616,7 @@ inline Node::~Node() {
     while(i < nodes.size()) {
 
       if(nodes[i]->_handle.index() == DYNAMIC) {
-        auto& sbg = std::get_if<Dynamic>(&(nodes[i]->_handle))->subgraph;
+        auto& sbg = absl::get_if<Dynamic>(&(nodes[i]->_handle))->subgraph;
         std::move(
           sbg._nodes.begin(), sbg._nodes.end(), std::back_inserter(nodes)
         );
@@ -687,7 +687,7 @@ inline bool Node::_is_conditioner() const {
 // Function: _is_cancelled
 inline bool Node::_is_cancelled() const {
   if(_handle.index() == Node::ASYNC) {
-    auto h = std::get_if<Node::Async>(&_handle);
+    auto h = absl::get_if<Node::Async>(&_handle);
     if(h->topology && h->topology->_is_cancelled.load(std::memory_order_relaxed)) {
       return true;
     }
@@ -800,7 +800,8 @@ inline void Graph::_merge(Graph&& g) {
 
 // Function: erase
 inline void Graph::_erase(Node* node) {
-  if(auto I = std::find(_nodes.begin(), _nodes.end(), node); I != _nodes.end()) {
+  auto I = std::find(_nodes.begin(), _nodes.end(), node); 
+  if(I != _nodes.end()) {
     _nodes.erase(I);
     node_pool().recycle(node);
   }

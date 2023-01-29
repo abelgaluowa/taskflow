@@ -47,16 +47,17 @@ enum class TaskType : int {
 @private
 @brief array of all task types (used for iterating task types)
 */
-inline constexpr std::array<TaskType, 9> TASK_TYPES = {
-  TaskType::PLACEHOLDER,
-  TaskType::CUDAFLOW,
-  TaskType::SYCLFLOW,
-  TaskType::STATIC,
-  TaskType::DYNAMIC,
-  TaskType::CONDITION,
-  TaskType::MODULE,
-  TaskType::ASYNC,
-  TaskType::RUNTIME
+struct TASK_TYPES {
+  static constexpr std::array<TaskType, 9> value = {
+      TaskType::PLACEHOLDER,
+      TaskType::CUDAFLOW,
+      TaskType::SYCLFLOW,
+      TaskType::STATIC,
+      TaskType::DYNAMIC,
+      TaskType::CONDITION,
+      TaskType::MODULE,
+      TaskType::ASYNC,
+      TaskType::RUNTIME};
 };
 
 /**
@@ -279,6 +280,13 @@ class Task {
     template <typename T>
     Task& composed_of(T& object);
 
+    // helper for precede
+    template<typename...>
+    void _precede();
+
+    template<typename T, typename... Args>
+    void _precede(T&& t, Args&&... args);
+
     /**
     @brief adds precedence links from this to other tasks
 
@@ -290,6 +298,13 @@ class Task {
     */
     template <typename... Ts>
     Task& precede(Ts&&... tasks);
+
+    // helper for succeed
+    template<typename...>
+    void _succeed();
+
+    template<typename T, typename... Args>
+    void _succeed(T&& t, Args&&... args);
 
     /**
     @brief adds precedence links from other tasks to this
@@ -428,19 +443,41 @@ inline Task::Task(Node* node) : _node {node} {
 inline Task::Task(const Task& rhs) : _node {rhs._node} {
 }
 
+// precede helper
+template<typename...>
+void Task::_precede()
+{}
+
+template<typename T, typename... Args>
+void Task::_precede(T&& t, Args&&... args)
+{
+  _node->_precede(t._node);
+  _precede(std::forward<Args>(args)...);
+}
+
 // Function: precede
 template <typename... Ts>
 Task& Task::precede(Ts&&... tasks) {
-  (_node->_precede(tasks._node), ...);
-  //_precede(std::forward<Ts>(tasks)...);
+  _precede(std::forward<Ts>(tasks)...);
   return *this;
+}
+
+// helper for succeed
+template<typename...>
+void Task::_succeed()
+{}
+
+template<typename T, typename... Args>
+void Task::_succeed(T&& t, Args&&... args)
+{
+  t._node->_precede(_node);
+  _succeed(std::forward<Args>(args)...);
 }
 
 // Function: succeed
 template <typename... Ts>
 Task& Task::succeed(Ts&&... tasks) {
-  (tasks._node->_precede(_node), ...);
-  //_succeed(std::forward<Ts>(tasks)...);
+  _succeed(std::forward<Ts>(tasks)...);
   return *this;
 }
 
