@@ -2,6 +2,8 @@
 
 #include<type_traits>
 #include<memory>
+#include "absl/base/internal/invoke.h"
+#include "absl/types/optional.h"
 
 namespace neo {
 
@@ -64,6 +66,14 @@ make_unique(std::size_t n)
 
 template<class T, class... Args>
 enable_if_t<detail::is_bounded_array<T>::value> make_unique(Args&&...) = delete;
+
+
+/// helper for Subflow 
+template<typename F, typename... ArgsT>
+using InvokeRet = absl::base_internal::invoke_result_t<F, ArgsT...>;
+
+template<typename F, typename... ArgsT>
+using FRet = neo::conditional_t<std::is_same<InvokeRet<F, ArgsT...>, void>::value, void, absl::optional<InvokeRet<F, ArgsT...>>>;
 
 }  // end of namespace neo. ----------------------------------------------------
 

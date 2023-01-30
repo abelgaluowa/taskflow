@@ -172,7 +172,10 @@ class FlowBuilder {
     @endcode
     */
     template <typename... C, neo::enable_if_t<(sizeof...(C)>1), void>* = nullptr>
-    auto emplace(C&&... callables);
+    auto emplace(C&&... callables) -> decltype(std::make_tuple(emplace(std::forward<C>(callables))...))
+    {
+        return std::make_tuple(emplace(std::forward<C>(callables))...);
+    }
 
     /**
     @brief removes a task from a taskflow
@@ -777,12 +780,6 @@ Task FlowBuilder::emplace(C&& c) {
   ));
 }
 
-// Function: emplace
-template <typename... C, neo::enable_if_t<(sizeof...(C)>1), void>*>
-auto FlowBuilder::emplace(C&&... cs) {
-  return std::make_tuple(emplace(std::forward<C>(cs))...);
-}
-
 // Function: erase
 inline void FlowBuilder::erase(Task task) {
 
@@ -792,14 +789,16 @@ inline void FlowBuilder::erase(Task task) {
 
   task.for_each_dependent([&] (Task dependent) {
     auto& S = dependent._node->_successors;
-    if(auto I = std::find(S.begin(), S.end(), task._node); I != S.end()) {
+    auto I = std::find(S.begin(), S.end(), task._node);
+    if(I != S.end()) {
       S.erase(I);
     }
   });
 
   task.for_each_successor([&] (Task dependent) {
     auto& D = dependent._node->_dependents;
-    if(auto I = std::find(D.begin(), D.end(), task._node); I != D.end()) {
+    auto I = std::find(D.begin(), D.end(), task._node);
+    if(I != D.end()) {
       D.erase(I);
     }
   });
@@ -994,7 +993,7 @@ class Subflow : public FlowBuilder {
     Doing this results in undefined behavior.
     */
     template <typename F, typename... ArgsT>
-    auto async(F&& f, ArgsT&&... args);
+    auto async(F&& f, ArgsT&&... args) -> Future<neo::FRet<F, ArgsT...>>;
 
     /**
     @brief runs the given function asynchronously and assigns the task a name
@@ -1035,7 +1034,7 @@ class Subflow : public FlowBuilder {
     Doing this results in undefined behavior.
     */
     template <typename F, typename... ArgsT>
-    auto named_async(const std::string& name, F&& f, ArgsT&&... args);
+    auto named_async(const std::string& name, F&& f, ArgsT&&... args) -> Future<neo::FRet<F, ArgsT...>>;
 
     /**
     @brief similar to tf::Subflow::async but does not return a future object
@@ -1094,7 +1093,7 @@ class Subflow : public FlowBuilder {
     Subflow(Executor&, Worker&, Node*, Graph&);
 
     template <typename F, typename... ArgsT>
-    auto _named_async(Worker& w, const std::string& name, F&& f, ArgsT&&... args);
+    auto _named_async(Worker& w, const std::string& name, F&& f, ArgsT&&... args) -> Future<neo::FRet<F, ArgsT...>>;
 
     template <typename F, typename... ArgsT>
     void _named_silent_async(Worker& w, const std::string& name, F&& f, ArgsT&&... args);

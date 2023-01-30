@@ -2006,7 +2006,8 @@ inline void Subflow::detach() {
 
 // Function: named_async
 template <typename F, typename... ArgsT>
-auto Subflow::named_async(const std::string& name, F&& f, ArgsT&&... args) {
+auto Subflow::named_async(const std::string& name, F&& f, ArgsT&&... args) -> Future<neo::FRet<F, ArgsT...>>
+{
   return _named_async(
     *_executor._this_worker(), name, std::forward<F>(f), std::forward<ArgsT>(args)...
   );
@@ -2019,7 +2020,8 @@ auto Subflow::_named_async(
   const std::string& name,
   F&& f,
   ArgsT&&... args
-) {
+) -> Future<neo::FRet<F, ArgsT...>>
+{
 
   _parent->_join_counter.fetch_add(1);
 
@@ -2060,7 +2062,8 @@ auto Subflow::_named_async(
 
 // Function: async
 template <typename F, typename... ArgsT>
-auto Subflow::async(F&& f, ArgsT&&... args) {
+auto Subflow::async(F&& f, ArgsT&&... args) -> Future<neo::FRet<F, ArgsT...>>
+{
   return named_async("", std::forward<F>(f), std::forward<ArgsT>(args)...);
 }
 
