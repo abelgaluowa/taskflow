@@ -47,7 +47,7 @@ struct Segment {
   ) : name {n}, type {t}, beg {b}, end {e} {
   }
 
-  auto span() const {
+  auto span() const -> decltype(end-beg) {
     return end-beg;
   } 
 };
@@ -71,12 +71,12 @@ struct Timeline {
   Timeline& operator = (Timeline&& rhs) = default;
 
   template <typename Archiver>
-  auto save(Archiver& ar) const {
+  auto save(Archiver& ar) const -> decltype(ar(uid, origin, segments)) {
     return ar(uid, origin, segments);
   }
 
   template <typename Archiver>
-  auto load(Archiver& ar) {
+  auto load(Archiver& ar) -> decltype(ar(uid, origin, segments)) {
     return ar(uid, origin, segments);
   }
 };  
@@ -97,12 +97,12 @@ struct ProfileData {
   ProfileData& operator = (ProfileData&&) = default;
   
   template <typename Archiver>
-  auto save(Archiver& ar) const {
+  auto save(Archiver& ar) const -> decltype(ar(timelines)) {
     return ar(timelines);
   }
 
   template <typename Archiver>
-  auto load(Archiver& ar) {
+  auto load(Archiver& ar) -> decltype(ar(timelines)) {
     return ar(timelines);
   }
 };
@@ -401,7 +401,7 @@ inline std::string ChromeObserver::dump() const {
 inline size_t ChromeObserver::num_tasks() const {
   return std::accumulate(
     _timeline.segments.begin(), _timeline.segments.end(), size_t{0}, 
-    [](size_t sum, const auto& exe){ 
+    [](size_t sum, const decltype(*_timeline.segments.begin())& exe){ 
       return sum + exe.size(); 
     }
   );
@@ -535,27 +535,27 @@ inline void TFProfObserver::Summary::dump_tsum(std::ostream& os) const {
   // task summary
   size_t type_w{10}, count_w{5}, time_w{9}, avg_w{8}, min_w{8}, max_w{8};
 
-  std::for_each(tsum.begin(), tsum.end(), [&](const auto& i){
+  std::for_each(tsum.begin(), tsum.end(), [&](const decltype(*tsum.begin())& i){
     if(i.count == 0) return;
     count_w = std::max(count_w, std::to_string(i.count).size());
   });
   
-  std::for_each(tsum.begin(), tsum.end(), [&](const auto& i){
+  std::for_each(tsum.begin(), tsum.end(), [&](const decltype(*tsum.begin())& i){
     if(i.count == 0) return;
     time_w = std::max(time_w, std::to_string(i.total_span).size());
   });
   
-  std::for_each(tsum.begin(), tsum.end(), [&](const auto& i){
+  std::for_each(tsum.begin(), tsum.end(), [&](const decltype(*tsum.begin())& i){
     if(i.count == 0) return;
     avg_w = std::max(time_w, std::to_string(i.avg_span()).size());
   });
   
-  std::for_each(tsum.begin(), tsum.end(), [&](const auto& i){
+  std::for_each(tsum.begin(), tsum.end(), [&](const decltype(*tsum.begin())& i){
     if(i.count == 0) return;
     min_w = std::max(min_w, std::to_string(i.min_span).size());
   });
   
-  std::for_each(tsum.begin(), tsum.end(), [&](const auto& i){
+  std::for_each(tsum.begin(), tsum.end(), [&](const decltype(*tsum.begin())& i){
     if(i.count == 0) return;
     max_w = std::max(max_w, std::to_string(i.max_span).size());
   });
@@ -588,32 +588,32 @@ inline void TFProfObserver::Summary::dump_wsum(std::ostream& os) const {
   // task summary
   size_t w_w{10}, t_w{10}, l_w{5}, c_w{5}, d_w{9}, avg_w{8}, min_w{8}, max_w{8};
 
-  std::for_each(wsum.begin(), wsum.end(), [&](const auto& i){
+  std::for_each(wsum.begin(), wsum.end(), [&](const decltype(*wsum.begin())& i){
     if(i.count == 0) return;
     l_w = std::max(l_w, std::to_string(i.level).size());
   });
   
-  std::for_each(wsum.begin(), wsum.end(), [&](const auto& i){
+  std::for_each(wsum.begin(), wsum.end(), [&](const decltype(*wsum.begin())& i){
     if(i.count == 0) return;
     c_w = std::max(c_w, std::to_string(i.count).size());
   });
   
-  std::for_each(wsum.begin(), wsum.end(), [&](const auto& i){
+  std::for_each(wsum.begin(), wsum.end(), [&](const decltype(*wsum.begin())& i){
     if(i.count == 0) return;
     d_w = std::max(d_w, std::to_string(i.total_span).size());
   });
   
-  std::for_each(wsum.begin(), wsum.end(), [&](const auto& i){
+  std::for_each(wsum.begin(), wsum.end(), [&](const decltype(*wsum.begin())& i){
     if(i.count == 0) return;
     avg_w = std::max(avg_w, std::to_string(i.avg_span()).size());
   });
   
-  std::for_each(wsum.begin(), wsum.end(), [&](const auto& i){
+  std::for_each(wsum.begin(), wsum.end(), [&](const decltype(*wsum.begin())& i){
     if(i.count == 0) return;
     min_w = std::max(min_w, std::to_string(i.min_span).size());
   });
   
-  std::for_each(wsum.begin(), wsum.end(), [&](const auto& i){
+  std::for_each(wsum.begin(), wsum.end(), [&](const decltype(*wsum.begin())& i){
     if(i.count == 0) return;
     max_w = std::max(max_w, std::to_string(i.max_span).size());
   });
@@ -962,7 +962,7 @@ inline TFProfManager::TFProfManager() :
 
 // Procedure: manage
 inline void TFProfManager::_manage(std::shared_ptr<TFProfObserver> observer) {
-  std::lock_guard lock(_mutex);
+  std::lock_guard<std::mutex> lock(_mutex);
   _observers.push_back(std::move(observer));
 }
 
