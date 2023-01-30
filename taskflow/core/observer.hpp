@@ -31,12 +31,12 @@ struct Segment {
   observer_stamp_t end;
 
   template <typename Archiver>
-  auto save(Archiver& ar) const {
+  auto save(Archiver& ar) const -> decltype(ar(name, type, beg, end)) {
     return ar(name, type, beg, end);
   }
 
   template <typename Archiver>
-  auto load(Archiver& ar) {
+  auto load(Archiver& ar) -> decltype(ar(name, type, beg, end)) {
     return ar(name, type, beg, end);
   }
 

@@ -166,6 +166,14 @@ std::function<void(tf::Runtime&)>.
 template <typename C>
 struct is_runtime_task: std::integral_constant<bool, absl::base_internal::is_invocable_r<void, C, Runtime&>::value> {};
 
+template<typename C>
+struct is_default_task: std::integral_constant<bool,
+  is_static_task<C>::value ||
+  is_dynamic_task<C>::value ||
+  is_condition_task<C>::value ||
+  is_multi_condition_task<C>::value ||
+  is_cudaflow_task<C>::value ||
+  is_runtime_task<C>::value> {};
 // ----------------------------------------------------------------------------
 // Task
 // ----------------------------------------------------------------------------
@@ -266,7 +274,25 @@ class Task {
 
     @return @c *this
     */
-    template <typename C>
+    template <typename C, neo::enable_if_t<!is_default_task<C>::value, void>* = nullptr>
+    Task& work(C&& callable);
+
+    template <typename C, neo::enable_if_t<is_static_task<C>::value, void>* = nullptr>
+    Task& work(C&& callable);
+
+    template <typename C, neo::enable_if_t<is_dynamic_task<C>::value, void>* = nullptr>
+    Task& work(C&& callable);
+
+    template <typename C, neo::enable_if_t<is_condition_task<C>::value, void>* = nullptr>
+    Task& work(C&& callable);
+
+    template <typename C, neo::enable_if_t<is_multi_condition_task<C>::value, void>* = nullptr>
+    Task& work(C&& callable);
+
+    template <typename C, neo::enable_if_t<is_cudaflow_task<C>::value, void>* = nullptr>
+    Task& work(C&& callable);
+
+    template <typename C, neo::enable_if_t<is_runtime_task<C>::value, void>* = nullptr>
     Task& work(C&& callable);
 
     /**
@@ -628,30 +654,57 @@ inline void Task::dump(std::ostream& os) const {
 }
 
 // Function: work
-template <typename C>
+template <typename C, neo::enable_if_t<!is_default_task<C>::value, void>*>
 Task& Task::work(C&& c) {
+  static_assert(dependent_false<C>::value, "invalid task callable");
+  return *this;
+}
 
-  if constexpr(is_static_task<C>::value) {
-    _node->_handle.emplace<Node::Static>(std::forward<C>(c));
-  }
-  else if constexpr(is_dynamic_task<C>::value) {
-    _node->_handle.emplace<Node::Dynamic>(std::forward<C>(c));
-  }
-  else if constexpr(is_condition_task<C>::value) {
-    _node->_handle.emplace<Node::Condition>(std::forward<C>(c));
-  }
-  else if constexpr(is_multi_condition_task<C>::value) {
-    _node->_handle.emplace<Node::MultiCondition>(std::forward<C>(c));
-  }
-  else if constexpr(is_cudaflow_task<C>::value) {
-    _node->_handle.emplace<Node::cudaFlow>(std::forward<C>(c));
-  }
-  else if constexpr(is_runtime_task<C>::value) {
-    _node->_handle.emplace<Node::Runtime>(std::forward<C>(c));
-  }
-  else {
-    static_assert(dependent_false<C>::value, "invalid task callable");
-  }
+template <typename C,
+neo::enable_if_t<is_static_task<C>::value, void>*
+>
+Task& Task::work(C&& c) {
+  _node->_handle.emplace<Node::Static>(std::forward<C>(c));
+  return *this;
+}
+
+template <typename C,
+neo::enable_if_t<is_dynamic_task<C>::value, void>*
+>
+Task& Task::work(C&& c) {
+  _node->_handle.emplace<Node::Dynamic>(std::forward<C>(c));
+  return *this;
+}
+
+template <typename C,
+neo::enable_if_t<is_condition_task<C>::value, void>*
+>
+Task& Task::work(C&& c) {
+  _node->_handle.emplace<Node::Condition>(std::forward<C>(c));
+  return *this;
+}
+
+template <typename C,
+neo::enable_if_t<is_multi_condition_task<C>::value, void>*
+>
+Task& Task::work(C&& c) {
+  _node->_handle.emplace<Node::MultiCondition>(std::forward<C>(c));
+  return *this;
+}
+
+template <typename C,
+neo::enable_if_t<is_cudaflow_task<C>::value, void>*
+>
+Task& Task::work(C&& c) {
+  _node->_handle.emplace<Node::cudaFlow>(std::forward<C>(c));
+  return *this;
+}
+
+template <typename C,
+neo::enable_if_t<is_runtime_task<C>::value, void>*
+>
+Task& Task::work(C&& c) {
+  _node->_handle.emplace<Node::Runtime>(std::forward<C>(c));
   return *this;
 }
 
@@ -836,7 +889,7 @@ namespace std {
 */
 template <>
 struct hash<tf::Task> {
-  auto operator() (const tf::Task& task) const noexcept {
+  auto operator() (const tf::Task& task) const noexcept -> decltype(task.hash_value()) {
     return task.hash_value();
   }
 };
@@ -848,7 +901,7 @@ struct hash<tf::Task> {
 */
 template <>
 struct hash<tf::TaskView> {
-  auto operator() (const tf::TaskView& task_view) const noexcept {
+  auto operator() (const tf::TaskView& task_view) const noexcept -> decltype(task_view.hash_value()) {
     return task_view.hash_value();
   }
 };
