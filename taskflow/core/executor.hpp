@@ -587,7 +587,7 @@ class Executor {
     This member function is thread-safe.
     */
     template <typename F, typename... ArgsT>
-    auto async(F&& f, ArgsT&&... args);
+    auto async(F&& f, ArgsT&&... args) -> Future<neo::FRet<F, ArgsT...>>;
 
     /**
     @brief runs a given function asynchronously and gives a name to this task
@@ -620,7 +620,7 @@ class Executor {
     This member function is thread-safe.
     */
     template <typename F, typename... ArgsT>
-    auto named_async(const std::string& name, F&& f, ArgsT&&... args);
+    auto named_async(const std::string& name, F&& f, ArgsT&&... args) -> Future<neo::FRet<F, ArgsT...>>;
 
     /**
     @brief similar to tf::Executor::async but does not return a future object
@@ -820,7 +820,8 @@ inline Worker* Executor::_this_worker() {
 
 // Function: named_async
 template <typename F, typename... ArgsT>
-auto Executor::named_async(const std::string& name, F&& f, ArgsT&&... args) {
+auto Executor::named_async(const std::string& name, F&& f, ArgsT&&... args) -> Future<neo::FRet<F, ArgsT...>>
+{
 
   _increment_topology();
 
@@ -864,7 +865,8 @@ auto Executor::named_async(const std::string& name, F&& f, ArgsT&&... args) {
 
 // Function: async
 template <typename F, typename... ArgsT>
-auto Executor::async(F&& f, ArgsT&&... args) {
+auto Executor::async(F&& f, ArgsT&&... args) -> Future<neo::FRet<F, ArgsT...>>
+{
   return named_async("", std::forward<F>(f), std::forward<ArgsT>(args)...);
 }
 

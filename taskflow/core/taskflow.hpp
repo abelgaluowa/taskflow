@@ -291,7 +291,7 @@ inline Taskflow::Taskflow() : FlowBuilder{_graph} {
 // Move constructor
 inline Taskflow::Taskflow(Taskflow&& rhs) : FlowBuilder{_graph} {
 
-  std::scoped_lock<std::mutex> lock(rhs._mutex);
+  std::lock_guard<std::mutex> lock(rhs._mutex);
 
   _name = std::move(rhs._name);
   _graph = std::move(rhs._graph);
@@ -304,7 +304,10 @@ inline Taskflow::Taskflow(Taskflow&& rhs) : FlowBuilder{_graph} {
 // Move assignment
 inline Taskflow& Taskflow::operator = (Taskflow&& rhs) {
   if(this != &rhs) {
-    std::scoped_lock<std::mutex, std::mutex> lock(_mutex, rhs._mutex);
+    std::lock(_mutex, rhs._mutex);
+    std::lock_guard<std::mutex> locka(_mutex, std::adopt_lock);
+    std::lock_guard<std::mutex> lockb(rhs._mutex, std::adopt_lock);
+
     _name = std::move(rhs._name);
     _graph = std::move(rhs._graph);
     _topologies = std::move(rhs._topologies);
@@ -377,7 +380,9 @@ inline void Taskflow::_dump(std::ostream& os, const Graph* top) const {
 
   while(!dumper.stack.empty()) {
 
-    auto [p, f] = dumper.stack.top();
+    auto&& topEle = dumper.stack.top();
+    auto p = topEle.first;
+    auto f = topEle.second;
     dumper.stack.pop();
 
     os << "subgraph cluster_p" << f << " {\nlabel=\"";
@@ -463,7 +468,7 @@ inline void Taskflow::_dump(
   switch(node->_handle.index()) {
 
     case Node::DYNAMIC: {
-      auto& sbg = std::get_if<Node::Dynamic>(&node->_handle)->subgraph;
+      auto& sbg = absl::get_if<Node::Dynamic>(&node->_handle)->subgraph;
       if(!sbg.empty()) {
         os << "subgraph cluster_p" << node << " {\nlabel=\"Subflow: ";
         if(node->_name.empty()) os << 'p' << node;
@@ -477,14 +482,14 @@ inline void Taskflow::_dump(
     break;
 
     case Node::CUDAFLOW: {
-      std::get_if<Node::cudaFlow>(&node->_handle)->graph->dump(
+      absl::get_if<Node::cudaFlow>(&node->_handle)->graph->dump(
         os, node, node->_name
       );
     }
     break;
 
     case Node::SYCLFLOW: {
-      std::get_if<Node::syclFlow>(&node->_handle)->graph->dump(
+      absl::get_if<Node::syclFlow>(&node->_handle)->graph->dump(
         os, node, node->_name
       );
     }
@@ -509,7 +514,7 @@ inline void Taskflow::_dump(
     // module task
     else {
       //auto module = &(std::get_if<Node::Module>(&n->_handle)->module);
-      auto module = &(std::get_if<Node::Module>(&n->_handle)->graph);
+      auto module = &(absl::get_if<Node::Module>(&n->_handle)->graph);
 
       os << 'p' << n << "[shape=box3d, color=blue, label=\"";
       if(n->_name.empty()) os << 'p' << n;
@@ -623,6 +628,24 @@ class Future : public std::future<T>  {
     bool cancel();
 
   private:
+    struct Visitor{
+        template<typename U,
+            neo::enable_if_t<std::is_same<neo::decay_t<U>, absl::monostate>::value>* = nullptr>
+        bool operator()(U&& u){
+            return false;
+        }
+
+        template<typename U,
+            neo::enable_if_t<!std::is_same<neo::decay_t<U>, absl::monostate>::value>* = nullptr>
+        bool operator()(U&& u){
+            auto ptr = u.lock();
+            if(ptr) {
+                ptr->_is_cancelled.store(true, std::memory_order_relaxed);
+                return true;
+            }
+            return false;
+        }
+    };
 
     handle_t _handle;
 
@@ -640,20 +663,7 @@ Future<T>::Future(std::future<T>&& fu, P&& p) :
 // Function: cancel
 template <typename T>
 bool Future<T>::cancel() {
-  return std::visit([](auto&& arg){
-    using P = neo::decay_t<decltype(arg)>;
-    if constexpr(std::is_same<P, absl::monostate>::value) {
-      return false;
-    }
-    else {
-      auto ptr = arg.lock();
-      if(ptr) {
-        ptr->_is_cancelled.store(true, std::memory_order_relaxed);
-        return true;
-      }
-      return false;
-    }
-  }, _handle);
+  return absl::visit(Visitor{}, _handle);
 }
 
 

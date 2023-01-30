@@ -308,7 +308,7 @@ class Serializer {
     struct Visitor{
         template<typename T>
         SizeType operator()(T&& t){
-            return serializer._save();
+            return serializer._save(std::forward<T>(t));
         }
 
         Visitor(Serializer<Stream, SizeType>& s)
