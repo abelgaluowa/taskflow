@@ -1069,7 +1069,7 @@ inline cudaFlowCapturer::cudaFlowCapturer(cudaGraph& g, Executor& e) :
 // constructs a standalone cudaFlow capturer
 inline cudaFlowCapturer::cudaFlowCapturer() :
   _handle {absl::in_place_type_t<External>{}},
-  _graph  {std::get_if<External>(&_handle)->graph} {
+  _graph  {absl::get_if<External>(&_handle)->graph} {
 }
 
 inline cudaFlowCapturer::~cudaFlowCapturer() {
@@ -1223,7 +1223,7 @@ void cudaFlowCapturer::on(cudaTask task, C&& callable) {
 
   _graph._state |= cudaGraph::UPDATED;
 
-  std::get_if<cudaNode::Capture>(&task._node->_handle)->work =
+  absl::get_if<cudaNode::Capture>(&task._node->_handle)->work =
     std::forward<C>(callable);
 }
 

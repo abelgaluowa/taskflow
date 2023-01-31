@@ -872,7 +872,8 @@ auto Executor::named_async(const std::string& name, F&& f, ArgsT&&... args) -> F
 
   node->_name = name;
 
-  if(auto w = _this_worker(); w) {
+  auto w = _this_worker();
+  if(w) {
     _schedule(*w, node);
   }
   else{
@@ -899,14 +900,13 @@ void Executor::named_silent_async(
 
   Node* node = node_pool().animate(
     absl::in_place_type_t<Node::SilentAsync>{},
-    [f=std::forward<F>(f), args...] () mutable {
-      f(args...);
-    }
+    std::bind(std::forward<F>(f), args...)
   );
 
   node->_name = name;
 
-  if(auto w = _this_worker(); w) {
+  auto w = _this_worker();
+  if(w) {
     _schedule(*w, node);
   }
   else {
@@ -949,9 +949,11 @@ inline void Executor::_spawn(size_t N) {
 
       // enables the mapping
       {
-        std::scoped_lock lock(mutex);
+        std::lock_guard<std::mutex> lock(mutex);
         _wids[std::this_thread::get_id()] = w._id;
-        if(n++; n == num_workers()) {
+
+        n++;
+        if(n == num_workers()) {
           cond.notify_one();
         }
       }
@@ -1016,7 +1018,8 @@ inline void Executor::_loop_until(Worker& w, P&& stop_predicate) {
 
     //exploit:
 
-    if(auto t = w._wsq.pop(); t) {
+    auto t = w._wsq.pop();
+    if(t) {
       _invoke(w, t);
     }
     else {
@@ -1478,7 +1481,8 @@ inline void Executor::_invoke(Worker& worker, Node* node) {
     // non-condition task
     default: {
       for(size_t i=0; i<node->_successors.size(); ++i) {
-        if(auto s = node->_successors[i]; --(s->_join_counter) == 0) {
+        auto s = node->_successors[i];
+        if(--(s->_join_counter) == 0) {
           j.fetch_add(1);
           if(s->_priority <= max_p) {
             if(cache) {
@@ -1540,7 +1544,7 @@ inline void Executor::_cancel_invoke(Worker& worker, Node* node) {
   switch(node->_handle.index()) {
     // async task needs to carry out the promise
     case Node::ASYNC:
-      std::get_if<Node::Async>(&(node->_handle))->work(true);
+      absl::get_if<Node::Async>(&(node->_handle))->work(true);
       _tear_down_async(node);
     break;
 
@@ -1574,7 +1578,7 @@ inline void Executor::_observer_epilogue(Worker& worker, Node* node) {
 // Procedure: _invoke_static_task
 inline void Executor::_invoke_static_task(Worker& worker, Node* node) {
   _observer_prologue(worker, node);
-  std::get_if<Node::Static>(&node->_handle)->work();
+  absl::get_if<Node::Static>(&node->_handle)->work();
   _observer_epilogue(worker, node);
 }
 
@@ -1583,7 +1587,7 @@ inline void Executor::_invoke_dynamic_task(Worker& w, Node* node) {
 
   _observer_prologue(w, node);
 
-  auto handle = std::get_if<Node::Dynamic>(&node->_handle);
+  auto handle = absl::get_if<Node::Dynamic>(&node->_handle);
 
   handle->subgraph._clear();
 
@@ -1660,7 +1664,7 @@ inline void Executor::_invoke_condition_task(
   Worker& worker, Node* node, SmallVector<int>& conds
 ) {
   _observer_prologue(worker, node);
-  conds = { std::get_if<Node::Condition>(&node->_handle)->work() };
+  conds = { absl::get_if<Node::Condition>(&node->_handle)->work() };
   _observer_epilogue(worker, node);
 }
 
@@ -1669,21 +1673,21 @@ inline void Executor::_invoke_multi_condition_task(
   Worker& worker, Node* node, SmallVector<int>& conds
 ) {
   _observer_prologue(worker, node);
-  conds = std::get_if<Node::MultiCondition>(&node->_handle)->work();
+  conds = absl::get_if<Node::MultiCondition>(&node->_handle)->work();
   _observer_epilogue(worker, node);
 }
 
 // Procedure: _invoke_cudaflow_task
 inline void Executor::_invoke_cudaflow_task(Worker& worker, Node* node) {
   _observer_prologue(worker, node);
-  std::get_if<Node::cudaFlow>(&node->_handle)->work(*this, node);
+  absl::get_if<Node::cudaFlow>(&node->_handle)->work(*this, node);
   _observer_epilogue(worker, node);
 }
 
 // Procedure: _invoke_syclflow_task
 inline void Executor::_invoke_syclflow_task(Worker& worker, Node* node) {
   _observer_prologue(worker, node);
-  std::get_if<Node::syclFlow>(&node->_handle)->work(*this, node);
+  absl::get_if<Node::syclFlow>(&node->_handle)->work(*this, node);
   _observer_epilogue(worker, node);
 }
 
@@ -1691,7 +1695,7 @@ inline void Executor::_invoke_syclflow_task(Worker& worker, Node* node) {
 inline void Executor::_invoke_module_task(Worker& w, Node* node) {
   _observer_prologue(w, node);
   _consume_graph(
-    w, node, std::get_if<Node::Module>(&node->_handle)->graph
+    w, node, absl::get_if<Node::Module>(&node->_handle)->graph
   );
   _observer_epilogue(w, node);
 }
@@ -1699,14 +1703,14 @@ inline void Executor::_invoke_module_task(Worker& w, Node* node) {
 // Procedure: _invoke_async_task
 inline void Executor::_invoke_async_task(Worker& w, Node* node) {
   _observer_prologue(w, node);
-  std::get_if<Node::Async>(&node->_handle)->work(false);
+  absl::get_if<Node::Async>(&node->_handle)->work(false);
   _observer_epilogue(w, node);
 }
 
 // Procedure: _invoke_silent_async_task
 inline void Executor::_invoke_silent_async_task(Worker& w, Node* node) {
   _observer_prologue(w, node);
-  std::get_if<Node::SilentAsync>(&node->_handle)->work();
+  absl::get_if<Node::SilentAsync>(&node->_handle)->work();
   _observer_epilogue(w, node);
 }
 
@@ -1714,7 +1718,7 @@ inline void Executor::_invoke_silent_async_task(Worker& w, Node* node) {
 inline void Executor::_invoke_runtime_task(Worker& w, Node* node) {
   _observer_prologue(w, node);
   Runtime rt(*this, w, node);
-  std::get_if<Node::Runtime>(&node->_handle)->work(rt);
+  absl::get_if<Node::Runtime>(&node->_handle)->work(rt);
   _observer_epilogue(w, node);
 }
 

@@ -1163,7 +1163,7 @@ class cudaFlow {
 // Construct a standalone cudaFlow
 inline cudaFlow::cudaFlow() :
   _handle {absl::in_place_type_t<External>{}},
-  _graph  {std::get_if<External>(&_handle)->graph} {
+  _graph  {absl::get_if<External>(&_handle)->graph} {
 
   TF_CHECK_CUDA(
     cudaGraphCreate(&_graph._native_handle, 0),
@@ -1255,7 +1255,7 @@ cudaTask cudaFlow::host(C&& c) {
     _graph, absl::in_place_type_t<cudaNode::Host>{}, std::forward<C>(c)
   );
 
-  auto h = std::get_if<cudaNode::Host>(&node->_handle);
+  auto h = absl::get_if<cudaNode::Host>(&node->_handle);
 
   cudaHostNodeParams p;
   p.fn = cudaNode::Host::callback;
@@ -1417,7 +1417,7 @@ void cudaFlow::host(cudaTask task, C&& c) {
     TF_THROW(task, " is not a host task");
   }
 
-  auto h = std::get_if<cudaNode::Host>(&task._node->_handle);
+  auto h = absl::get_if<cudaNode::Host>(&task._node->_handle);
 
   h->func = std::forward<C>(c);
 }
@@ -1542,7 +1542,7 @@ void cudaFlow::capture(cudaTask task, C c) {
 
   // insert a subflow node
   // construct a captured flow from the callable
-  auto node_handle = std::get_if<cudaNode::Subflow>(&task._node->_handle);
+  auto node_handle = absl::get_if<cudaNode::Subflow>(&task._node->_handle);
   node_handle->graph.clear();
 
   cudaFlowCapturer capturer(node_handle->graph);
@@ -1575,7 +1575,7 @@ cudaTask cudaFlow::capture(C&& c) {
   );
 
   // construct a captured flow from the callable
-  auto node_handle = std::get_if<cudaNode::Subflow>(&node->_handle);
+  auto node_handle = absl::get_if<cudaNode::Subflow>(&node->_handle);
   node_handle->graph.clear();
   cudaFlowCapturer capturer(node_handle->graph);
 
@@ -1707,7 +1707,7 @@ void Executor::_invoke_cudaflow_task_entry(Node* node, C&& c) {
     absl::base_internal::is_invocable_r<void, C, cudaFlow&>::value, cudaFlow, cudaFlowCapturer
   >;
 
-  auto h = std::get_if<Node::cudaFlow>(&node->_handle);
+  auto h = absl::get_if<Node::cudaFlow>(&node->_handle);
 
   cudaGraph* g = dynamic_cast<cudaGraph*>(h->graph.get());
 

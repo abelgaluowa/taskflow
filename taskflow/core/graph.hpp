@@ -598,9 +598,9 @@ inline Node::~Node() {
   // this is to avoid stack overflow
 
   if(_handle.index() == DYNAMIC) {
-    // using std::get_if instead of std::get makes this compatible
+    // using absl::get_if instead of std::get makes this compatible
     // with older macOS versions
-    // the result of std::get_if is guaranteed to be non-null
+    // the result of absl::get_if is guaranteed to be non-null
     // due to the index check above
     auto& subgraph = absl::get_if<Dynamic>(&_handle)->subgraph;
     std::vector<Node*> nodes;

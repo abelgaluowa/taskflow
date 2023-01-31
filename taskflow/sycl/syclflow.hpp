@@ -422,7 +422,7 @@ class syclFlow {
 inline syclFlow::syclFlow(sycl::queue& queue) :
   _queue  {queue}, 
   _handle {absl::in_place_type_t<External>{}},
-  _graph  {std::get_if<External>(&_handle)->graph} {
+  _graph  {absl::get_if<External>(&_handle)->graph} {
 }
 
 // Construct the syclFlow from executor (internal graph)
@@ -552,7 +552,7 @@ void syclFlow::offload_until(P&& predicate) {
                 h.depends_on(p->_event);
               }
             }
-            std::get_if<syclNode::CGH>(&u->_handle)->work(h);
+            absl::get_if<syclNode::CGH>(&u->_handle)->work(h);
           });
         break;
       }
@@ -580,7 +580,7 @@ template <typename F, neo::enable_if_t<
   absl::base_internal::is_invocable_r<void, F, sycl::handler&>::value, void>*
 >
 void syclFlow::on(syclTask task, F&& f) {
-  std::get_if<syclNode::CGH>(&task._node->_handle)->work = 
+  absl::get_if<syclNode::CGH>(&task._node->_handle)->work = 
     std::forward<F>(f);
 }
 
@@ -664,7 +664,7 @@ template <typename C, typename Q,
 >
 void Executor::_invoke_syclflow_task_entry(Node* node, C&& c, Q& queue) {
 
-  auto h = std::get_if<Node::syclFlow>(&node->_handle);
+  auto h = absl::get_if<Node::syclFlow>(&node->_handle);
 
   syclGraph* g = dynamic_cast<syclGraph*>(h->graph.get());
   

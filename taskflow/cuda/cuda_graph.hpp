@@ -915,7 +915,7 @@ inline void cudaGraph::dump(
 
         case cudaNode::SUBFLOW:
           stack.push(std::make_tuple(
-            &(std::get_if<cudaNode::Subflow>(&v->_handle)->graph), v, l+1)
+            &(absl::get_if<cudaNode::Subflow>(&v->_handle)->graph), v, l+1)
           );
           os << " style=\"filled\""
              << " color=\"black\" fillcolor=\"purple\""
