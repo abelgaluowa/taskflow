@@ -690,37 +690,6 @@ class Executor {
     size_t num_observers() const noexcept;
 
   private:
-
-    template<typename R, typename F, typename... Args>
-    class AsyncWorker {
-        MoC<std::promise<R>> moc;
-        F func;
-        std::tuple<Args...> arguments;
-
-         AsyncWorker(std::promise<R>&& p, F f, Args... args)
-             : moc(std::move(p)),
-             func(f),
-             arguments(std::make_tuple(std::forward<Args>(args)...)) {
-         }
-
-         void operator()(bool cancel){
-             this->work<R>(cancel);
-         }
-
-         template<typename T, typename std::enable_if<std::is_same<T, void>::value>::type* = nullptr>
-         void work(bool cancel){
-             if(!cancel) {
-                 absl::apply(func, arguments);
-             }
-             moc.object.set_value();
-         }
-
-         template<typename T, typename std::enable_if<!std::is_same<T, void>::value>::type* = nullptr>
-         void work(bool cancel){
-             moc.object.set_value(cancel ?  absl::nullopt : absl::make_optional(absl::apply(func, arguments)));
-         }
-    };
-
     const size_t _MAX_STEALS;
 
     std::condition_variable _topology_cv;
@@ -790,6 +759,40 @@ class Executor {
     >
     void _invoke_syclflow_task_entry(Node*, C&&, Q&);
 };
+
+namespace detail {
+    template<typename R, typename F, typename... Args>
+    class AsyncWorker {
+        MoC<std::promise<R>> moc;
+        F func;
+        std::tuple<Args...> arguments;
+
+         AsyncWorker(std::promise<R>&& p, F f, Args... args)
+             : moc(std::move(p)),
+             func(f),
+             arguments(std::make_tuple(std::forward<Args>(args)...)) {
+         }
+
+         void operator()(bool cancel){
+             this->work<R>(cancel);
+         }
+
+         template<typename T, typename std::enable_if<std::is_same<T, void>::value>::type* = nullptr>
+         void work(bool cancel){
+             if(!cancel) {
+                 absl::apply(func, arguments);
+             }
+             moc.object.set_value();
+         }
+
+         template<typename T, typename std::enable_if<!std::is_same<T, void>::value>::type* = nullptr>
+         void work(bool cancel){
+             moc.object.set_value(cancel ?  absl::nullopt : absl::make_optional(absl::apply(func, arguments)));
+         }
+    };
+} // namespace detail
+
+
 
 // Constructor
 inline Executor::Executor(size_t N, std::shared_ptr<WorkerInterface> wix) :
@@ -866,7 +869,7 @@ auto Executor::named_async(const std::string& name, F&& f, ArgsT&&... args) -> F
 
   auto node = node_pool().animate(
     absl::in_place_type_t<Node::Async>{},
-    AsyncWorker<R, F, ArgsT...>(std::move(p), std::forward<F>(f), args...),
+    detail::AsyncWorker<R, F, ArgsT...>(std::move(p), std::forward<F>(f), args...),
     std::move(tpg)
   );
 
@@ -1830,7 +1833,7 @@ tf::Future<void> Executor::run_until(Taskflow&& f, P&& pred, C&& c) {
   std::list<Taskflow>::iterator itr;
 
   {
-    std::scoped_lock<std::mutex> lock(_taskflow_mutex);
+    std::lock_guard<std::mutex> lock(_taskflow_mutex);
     itr = _taskflows.emplace(_taskflows.end(), std::move(f));
     itr->_satellite = itr;
   }
@@ -1946,7 +1949,9 @@ inline void Executor::_tear_down_topology(Worker& worker, Topology* tpg) {
     }
 
     // If there is another run (interleave between lock)
-    if(std::unique_lock<std::mutex> lock(f._mutex); f._topologies.size()>1) {
+    {
+    std::unique_lock<std::mutex> lock(f._mutex);
+    if(f._topologies.size()>1) {
       //assert(tpg->_join_counter == 0);
 
       // Set the promise
@@ -1992,9 +1997,10 @@ inline void Executor::_tear_down_topology(Worker& worker, Topology* tpg) {
       // TODO: in the future, we may need to synchronize on wait
       // (which means the following code should the moved before set_value)
       if(s) {
-        std::scoped_lock<std::mutex> lock(_taskflow_mutex);
+        std::lock_guard<std::mutex> lock(_taskflow_mutex);
         _taskflows.erase(*s);
       }
+    }
     }
   }
 }
@@ -2061,18 +2067,7 @@ auto Subflow::_named_async(
 
   auto node = node_pool().animate(
     absl::in_place_type_t<Node::Async>{},
-    [p=make_moc(std::move(p)), f=std::forward<F>(f), args...]
-    (bool cancel) mutable {
-      if constexpr(std::is_same<R, void>::value) {
-        if(!cancel) {
-          f(args...);
-        }
-        p.object.set_value();
-      }
-      else {
-        p.object.set_value(cancel ? std::nullopt : absl::make_optional(f(args...)));
-      }
-    },
+    detail::AsyncWorker<R, F, ArgsT...>(std::move(p), std::forward<F>(f), args...),
     std::move(tpg)
   );
 
@@ -2102,9 +2097,7 @@ void Subflow::_named_silent_async(
 
   auto node = node_pool().animate(
     absl::in_place_type_t<Node::SilentAsync>{},
-    [f=std::forward<F>(f), args...] () mutable {
-      f(args...);
-    }
+    std::bind(std::forward<F>(f), args...)
   );
 
   node->_name = name;
@@ -2142,22 +2135,20 @@ inline void Runtime::schedule(Task task) {
 }
 
 // Procedure: emplace
-template <typename T>
+template <typename T, neo::enable_if_t<is_dynamic_task<T>::value>*>
 void Runtime::run_and_wait(T&& target) {
-
-  // dynamic task (subflow)
-  if constexpr(is_dynamic_task<T>::value) {
     Graph graph;
     Subflow sf(_executor, _worker, _parent, graph);
     target(sf);
     if(sf._joinable) {
       _executor._consume_graph(_worker, _parent, graph);
     }
-  }
+}
+
+template <typename T, neo::enable_if_t<!is_dynamic_task<T>::value>*>
+void Runtime::run_and_wait(T&& target) {
   // graph object
-  else {
     _executor._consume_graph(_worker, _parent, target.graph());
-  }
 }
 
 }  // end of namespace tf -----------------------------------------------------

@@ -13,6 +13,7 @@
 #include "environment.hpp"
 #include "topology.hpp"
 #include "tsq.hpp"
+#include "absl/base/internal/invoke.h"
 
 /**
 @file graph.hpp
@@ -20,6 +21,9 @@
 */
 
 namespace tf {
+
+template <typename C>
+struct is_dynamic_task: std::integral_constant<bool, absl::base_internal::is_invocable_r<void, C, Subflow&>::value> {};
 
 // ----------------------------------------------------------------------------
 // Class: CustomGraphBase
@@ -233,7 +237,10 @@ class Runtime {
   });
   @endcode
   */
-  template <typename T>
+  template <typename T, neo::enable_if_t<is_dynamic_task<T>::value>* = nullptr>
+  void run_and_wait(T&& target);
+
+  template <typename T, neo::enable_if_t<!is_dynamic_task<T>::value>* = nullptr>
   void run_and_wait(T&& target);
 
   private:

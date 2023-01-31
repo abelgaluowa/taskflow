@@ -2,7 +2,6 @@
 
 #include "graph.hpp"
 
-#include "absl/base/internal/invoke.h"
 
 /**
 @file task.hpp
@@ -117,8 +116,9 @@ struct is_static_task: std::integral_constant<bool,
 
 A dynamic task is a callable object constructible from std::function<void(Subflow&)>.
 */
-template <typename C>
-struct is_dynamic_task: std::integral_constant<bool, absl::base_internal::is_invocable_r<void, C, Subflow&>::value> {};
+// to graph.hpp
+// template <typename C>
+// struct is_dynamic_task: std::integral_constant<bool, absl::base_internal::is_invocable_r<void, C, Subflow&>::value> {};
 
 /**
 @brief determines if a callable is a condition task
