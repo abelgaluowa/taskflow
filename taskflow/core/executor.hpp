@@ -690,7 +690,37 @@ class Executor {
     size_t num_observers() const noexcept;
 
   private:
-    
+
+    template<typename R, typename F, typename... Args>
+    class AsyncWorker {
+        MoC<std::promise<R>> moc;
+        F func;
+        std::tuple<Args...> arguments;
+
+         AsyncWorker(std::promise<R>&& p, F f, Args... args)
+             : moc(std::move(p)),
+             func(f),
+             arguments(std::make_tuple(std::forward<Args>(args)...)) {
+         }
+
+         void operator()(bool cancel){
+             this->work<R>(cancel);
+         }
+
+         template<typename T, typename std::enable_if<std::is_same<T, void>::value>::type* = nullptr>
+         void work(bool cancel){
+             if(!cancel) {
+                 absl::apply(func, arguments);
+             }
+             moc.object.set_value();
+         }
+
+         template<typename T, typename std::enable_if<!std::is_same<T, void>::value>::type* = nullptr>
+         void work(bool cancel){
+             moc.object.set_value(cancel ?  absl::nullopt : absl::make_optional(absl::apply(func, arguments)));
+         }
+    };
+
     const size_t _MAX_STEALS;
 
     std::condition_variable _topology_cv;
@@ -836,18 +866,7 @@ auto Executor::named_async(const std::string& name, F&& f, ArgsT&&... args) -> F
 
   auto node = node_pool().animate(
     absl::in_place_type_t<Node::Async>{},
-    [p=make_moc(std::move(p)), f=std::forward<F>(f), args...]
-    (bool cancel) mutable {
-      if constexpr(std::is_same<R, void>::value) {
-        if(!cancel) {
-          f(args...);
-        }
-        p.object.set_value();
-      }
-      else {
-        p.object.set_value(cancel ? std::nullopt : absl::make_optional(f(args...)));
-      }
-    },
+    AsyncWorker<R, F, ArgsT...>(std::move(p), std::forward<F>(f), args...),
     std::move(tpg)
   );
 
