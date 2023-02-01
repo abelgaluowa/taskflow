@@ -1250,6 +1250,36 @@ class ScalablePipeline {
   Graph& graph();
 
   private:
+  struct Worker{
+      ScalablePipeline<P>& scalablePipeline_;
+      Worker(ScalablePipeline<P>& scalablePipeline)
+      : scalablePipeline_(scalablePipeline){}
+
+      using callable_t = typename pipe_t::callable_t;
+
+      void operator()(Pipeflow& pf, Runtime& rt){
+          work<callable_t>(pf, rt);
+      }
+
+      template<typename T,
+      neo::enable_if_t<absl::base_internal::is_invocable<T, Pipeflow&>::value>* = nullptr>
+      void work(Pipeflow& pf, Runtime& rt){
+          scalablePipeline_._pipes[pf._pipe]->_callable(pf);
+      }
+
+      template<typename T,
+      neo::enable_if_t<absl::base_internal::is_invocable<T, Pipeflow&, Runtime&>::value>* = nullptr>
+      void work(Pipeflow& pf, Runtime& rt){
+          scalablePipeline_._pipes[pf._pipe]->_callable(pf);
+      }
+
+      template<typename T,
+      neo::enable_if_t<!absl::base_internal::is_invocable<callable_t, Pipeflow&>::value &&
+                       !absl::base_internal::is_invocable<callable_t, Pipeflow&, Runtime&>::value>* = nullptr>
+      void work(Pipeflow& pf, Runtime& rt){
+          static_assert(dependent_false<callable_t>::value, "un-supported pipe callable type");
+      }
+  };
 
   Graph _graph;
 
@@ -1426,18 +1456,8 @@ void ScalablePipeline<P>::reset() {
 // Procedure: _on_pipe
 template <typename P>
 void ScalablePipeline<P>::_on_pipe(Pipeflow& pf, Runtime& rt) {
-    
-  using callable_t = typename pipe_t::callable_t;
-
-  if constexpr (absl::base_internal::is_invocable<callable_t, Pipeflow&>::value) {
-    _pipes[pf._pipe]->_callable(pf);
-  }
-  else if constexpr(absl::base_internal::is_invocable<callable_t, Pipeflow&, Runtime&>::value) {
-    _pipes[pf._pipe]->_callable(pf, rt);
-  }
-  else {
-    static_assert(dependent_false<callable_t>::value, "un-supported pipe callable type");
-  }
+  Worker worker(*this);
+  worker.work(pf, rt);
 }
 
 // Procedure: _build
