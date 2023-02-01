@@ -13,6 +13,7 @@ namespace tf {
 // ----------------------------------------------------------------------------
 
 // Function: for_each
+#if 0
 template <typename B, typename E, typename C>
 Task FlowBuilder::for_each(B beg, E end, C c) {
 
@@ -219,6 +220,7 @@ Task FlowBuilder::for_each_index(B beg, E end, S inc, C c){
 
   return task;
 }
+#endif
 
 }  // end of namespace tf -----------------------------------------------------
 
