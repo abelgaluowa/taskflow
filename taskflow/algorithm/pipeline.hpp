@@ -485,6 +485,37 @@ class Pipeline {
 
 
   private:
+  struct Visitor{
+      Pipeflow& pf_;
+      Runtime& rt_;
+      Visitor(Pipeflow& pf, Runtime& rt)
+      : pf_(pf), rt_(rt){}
+
+      template<typename U>
+      using callable_t = typename neo::decay_t<U>::callable_t;
+
+      template<typename T,
+      neo::enable_if_t<absl::base_internal::is_invocable<callable_t<T>, Pipeflow&>::value>* = nullptr>
+      void operator()(T&& pipe){
+          pipe._callable(pf_);
+      }
+
+      template<typename T,
+      neo::enable_if_t<absl::base_internal::is_invocable<callable_t<T>, Pipeflow&, Runtime&>::value>* = nullptr>
+      void operator()(T&& pipe){
+          pipe._callable(pf_, rt_);
+      }
+
+      template<typename T,
+      neo::enable_if_t<
+          !absl::base_internal::is_invocable<callable_t<T>, Pipeflow&>::value &&
+          !absl::base_internal::is_invocable<callable_t<T>, Pipeflow&, Runtime&>::value
+          >* = nullptr>
+      void operator()(T&&){
+          static_assert(dependent_false<callable_t<T>>::value, "un-supported pipe callable type");
+      }
+  };
+
 
   Graph _graph;
 
@@ -662,18 +693,7 @@ void Pipeline<Ps...>::reset() {
 // Procedure: _on_pipe
 template <typename... Ps>
 void Pipeline<Ps...>::_on_pipe(Pipeflow& pf, Runtime& rt) {
-  visit_tuple([&](auto&& pipe){
-    using callable_t = typename neo::decay_t<decltype(pipe)>::callable_t;
-    if constexpr (absl::base_internal::is_invocable<callable_t, Pipeflow&>::value) {
-      pipe._callable(pf);
-    }
-    else if constexpr(absl::base_internal::is_invocable<callable_t, Pipeflow&, Runtime&>::value) {
-      pipe._callable(pf, rt);
-    }
-    else {
-      static_assert(dependent_false<callable_t>::value, "un-supported pipe callable type");
-    }
-  }, _pipes, pf._pipe);
+  visit_tuple(Visitor(rt), _pipes, pf._pipe);
 }
 
 // Procedure: _check_dependents
@@ -755,8 +775,8 @@ void Pipeline<Ps...>::_construct_deferred_tokens(Pipeflow& pf) {
 template <typename... Ps>
 void Pipeline<Ps...>::_resolve_token_dependencies(Pipeflow& pf) {
 
-  if (auto it = _token_dependencies.find(pf._token);
-      it != _token_dependencies.end()) {
+  auto it = _token_dependencies.find(pf._token);
+  if(it != _token_dependencies.end()) {
     
     // iterate tokens that defer to pf._token
     // (e.g., 12 and 13)
@@ -797,7 +817,7 @@ void Pipeline<Ps...>::_resolve_token_dependencies(Pipeflow& pf) {
 template <typename... Ps>
 void Pipeline<Ps...>::_build() {
 
-  using namespace std::literals::string_literals;
+  // using namespace std::literals::string_literals;
 
   FlowBuilder fb(_graph);
 
@@ -835,7 +855,9 @@ void Pipeline<Ps...>::_build() {
       
       handle_token_dependency: 
 
-        if (pf->_stop = false, _on_pipe(*pf, rt); pf->_stop == true) {
+        pf->_stop = false;
+        _on_pipe(*pf, rt);
+        if (pf->_stop == true) {
           // here, the pipeline is not stopped yet because other
           // lines of tasks may still be running their last stages
           return;
@@ -926,7 +948,7 @@ void Pipeline<Ps...>::_build() {
           goto pipeline;
         }
       }
-    }).name("rt-"s + std::to_string(l));
+    }).name(std::string("rt-") + std::to_string(l));
 
     _tasks[0].precede(_tasks[l+1]);
   }
