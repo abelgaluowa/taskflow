@@ -1464,7 +1464,7 @@ void ScalablePipeline<P>::_on_pipe(Pipeflow& pf, Runtime& rt) {
 template <typename P>
 void ScalablePipeline<P>::_build() {
 
-  using namespace std::literals::string_literals;
+  // using namespace std::literals::string_literals;
 
   FlowBuilder fb(_graph);
 
@@ -1488,7 +1488,9 @@ void ScalablePipeline<P>::_build() {
 
       if (pf->_pipe == 0) {
         pf->_token = _num_tokens;
-        if (pf->_stop = false, _on_pipe(*pf, rt); pf->_stop == true) {
+        pf->_stop = false;
+        _on_pipe(*pf, rt);
+        if (pf->_stop == true) {
           // here, the pipeline is not stopped yet because other
           // lines of tasks may still be running their last stages
           return;
@@ -1549,7 +1551,7 @@ void ScalablePipeline<P>::_build() {
           goto pipeline;
         }
       }
-    }).name("rt-"s + std::to_string(l));
+    }).name(std::string("rt-") + std::to_string(l));
 
     _tasks[0].precede(_tasks[l+1]);
   }

@@ -2,7 +2,6 @@
 
 #include "pipeline.hpp"
 
-
 namespace tf {
 
 // ----------------------------------------------------------------------------
@@ -168,7 +167,9 @@ tf::make_data_pipe<int, std::string>(
 
 */
 template <typename Input, typename Output, typename C>
-auto make_data_pipe(PipeType d, C&& callable) {
+auto make_data_pipe(PipeType d, C&& callable) 
+-> decltype(DataPipe<Input, Output, C>(d, std::forward<C>(callable)))
+{
   return DataPipe<Input, Output, C>(d, std::forward<C>(callable));
 }
 
@@ -364,7 +365,7 @@ class DataPipeline {
   std::vector<CachelineAligned<data_t>> _buffer;
 
   template <size_t... I>
-  auto _gen_meta(std::tuple<Ps...>&&, std::index_sequence<I...>);
+  auto _gen_meta(std::tuple<Ps...>&&, absl::index_sequence<I...>) -> std::array<PipeMeta, sizeof...(Ps)>;
 
   void _on_pipe(Pipeflow&, Runtime&);
   void _build();
@@ -397,7 +398,7 @@ template <typename... Ps>
 DataPipeline<Ps...>::DataPipeline(size_t num_lines, std::tuple<Ps...>&& ps) :
   _pipes     {std::forward<std::tuple<Ps...>>(ps)},
   _meta      {_gen_meta(
-    std::forward<std::tuple<Ps...>>(ps), std::make_index_sequence<sizeof...(Ps)>{}
+    std::forward<std::tuple<Ps...>>(ps), absl::make_index_sequence<sizeof...(Ps)>{}
   )},
   _lines     (num_lines),
   _tasks     (num_lines + 1),
@@ -419,8 +420,10 @@ DataPipeline<Ps...>::DataPipeline(size_t num_lines, std::tuple<Ps...>&& ps) :
 // Function: _get_meta
 template <typename... Ps>
 template <size_t... I>
-auto DataPipeline<Ps...>::_gen_meta(std::tuple<Ps...>&& ps, std::index_sequence<I...>) {
-  return std::array{PipeMeta{std::get<I>(ps).type()}...};
+auto DataPipeline<Ps...>::_gen_meta(std::tuple<Ps...>&& ps, absl::index_sequence<I...>)
+-> std::array<PipeMeta, sizeof...(Ps)>
+{
+  return std::array<PipeMeta, sizeof...(Ps)>{PipeMeta{std::get<I>(ps).type()}...};
 }
 
 // Function: num_lines
@@ -537,7 +540,7 @@ void DataPipeline<Ps...>::_on_pipe(Pipeflow& pf, Runtime&) {
 template <typename... Ps>
 void DataPipeline<Ps...>::_build() {
 
-  using namespace std::literals::string_literals;
+  // using namespace std::literals::string_literals;
 
   FlowBuilder fb(_graph);
 
@@ -561,7 +564,9 @@ void DataPipeline<Ps...>::_build() {
 
       if (pf->_pipe == 0) {
         pf->_token = _num_tokens;
-        if (pf->_stop = false, _on_pipe(*pf, rt); pf->_stop == true) {
+        pf->_stop = false;
+        _on_pipe(*pf, rt);
+        if (pf->_stop == true) {
           // here, the pipeline is not stopped yet because other
           // lines of tasks may still be running their last stages
           return;
@@ -622,7 +627,7 @@ void DataPipeline<Ps...>::_build() {
           goto pipeline;
         }
       }
-    }).name("rt-"s + std::to_string(l));
+    }).name(std::string("rt-") + std::to_string(l));
 
     _tasks[0].precede(_tasks[l+1]);
   }
