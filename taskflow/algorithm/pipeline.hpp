@@ -529,7 +529,7 @@ class Pipeline {
   size_t _longest_deferral = 0;  
   
   template <size_t... I>
-  auto _gen_meta(std::tuple<Ps...>&&, std::index_sequence<I...>);
+  auto _gen_meta(std::tuple<Ps...>&& ps, absl::index_sequence<I...>) -> std::array<PipeMeta, sizeof...(Ps)>;
 
   void _on_pipe(Pipeflow&, Runtime&);
   
@@ -568,7 +568,7 @@ template <typename... Ps>
 Pipeline<Ps...>::Pipeline(size_t num_lines, std::tuple<Ps...>&& ps) :
   _pipes     {std::forward<std::tuple<Ps...>>(ps)},
   _meta      {_gen_meta(
-    std::forward<std::tuple<Ps...>>(ps), std::make_index_sequence<sizeof...(Ps)>{}
+    std::forward<std::tuple<Ps...>>(ps), absl::make_index_sequence<sizeof...(Ps)>{}
   )},
   _lines     (num_lines),
   _tasks     (num_lines + 1),
@@ -589,8 +589,10 @@ Pipeline<Ps...>::Pipeline(size_t num_lines, std::tuple<Ps...>&& ps) :
 // Function: _get_meta
 template <typename... Ps>
 template <size_t... I>
-auto Pipeline<Ps...>::_gen_meta(std::tuple<Ps...>&& ps, std::index_sequence<I...>) {
-  return std::array{PipeMeta{std::get<I>(ps).type()}...};
+auto Pipeline<Ps...>::_gen_meta(std::tuple<Ps...>&& ps, absl::index_sequence<I...>)
+-> std::array<PipeMeta, sizeof...(Ps)>
+{
+  return std::array<PipeMeta, sizeof...(Ps)>{PipeMeta{std::get<I>(ps).type()}...};
 }
 
 // Function: num_lines

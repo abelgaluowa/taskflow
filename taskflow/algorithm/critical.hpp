@@ -60,6 +60,26 @@ class CriticalSection : public Semaphore {
     */
     template <typename... Tasks>
     void add(Tasks...tasks);
+
+  private:
+    template<typename...>
+    void acquire() {}
+
+    template <typename  Task, typename... Tasks>
+    void acquire(Task&& task, Tasks&&...tasks) {
+      task.acquire(std::forward<Task>(task));
+      acquire(std::forward<Tasks>(tasks)...);
+    }
+
+    template<typename...>
+    void release() {}
+
+    template <typename  Task, typename... Tasks>
+    void release(Task&& task, Tasks&&...tasks) {
+      task.release(std::forward<Task>(task));
+      release(std::forward<Tasks>(tasks)...);
+    }
+
 };
 
 inline CriticalSection::CriticalSection(size_t max_workers) :
@@ -68,8 +88,8 @@ inline CriticalSection::CriticalSection(size_t max_workers) :
 
 template <typename... Tasks>
 void CriticalSection::add(Tasks... tasks) {
-  (tasks.acquire(*this), ...);
-  (tasks.release(*this), ...);
+  acquire(std::forward<Tasks>(tasks)...);
+  release(std::forward<Tasks>(tasks)...);
 }
 
 

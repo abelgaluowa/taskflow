@@ -58,6 +58,7 @@ struct TASK_TYPES {
       TaskType::ASYNC,
       TaskType::RUNTIME};
 };
+constexpr std::array<TaskType, 9> TASK_TYPES::value;
 
 /**
 @brief convert a task type to a human-readable string
