@@ -352,6 +352,77 @@ class DataPipeline {
   Graph& graph();
 
   private:
+  struct Visitor{
+      DataPipeline<Ps...>& dp_;
+      Pipeflow& pf_;
+      Visitor(DataPipeline<Ps...>& dp, Pipeflow& pf)
+      : dp_(dp), pf_(pf){}
+
+      template<typename U>
+      using callable_t = typename neo::decay_t<U>::callable_t;
+      template<typename U>
+      using input_t = neo::decay_t<typename neo::decay_t<U>::input_t>;
+      template<typename U>
+      using output_t = neo::decay_t<typename neo::decay_t<U>::output_t>;
+
+      template<typename T,
+      neo::enable_if_t<absl::base_internal::is_invocable<callable_t<T>, Pipeflow&>::value>* = nullptr,
+      neo::enable_if_t<std::is_void<output_t<T>>::value>* = nullptr>
+      void operator()(T&& pipe){
+          pipe._callable(pf_);
+      }
+
+      template<typename T,
+      neo::enable_if_t<absl::base_internal::is_invocable<callable_t<T>, Pipeflow&>::value>* = nullptr,
+      neo::enable_if_t<!std::is_void<output_t<T>>::value>* = nullptr>
+      void operator()(T&& pipe){
+          dp_._buffer[pf_._line].data = pipe._callable(pf_);
+      }
+
+      template<typename T,
+      neo::enable_if_t<absl::base_internal::is_invocable<callable_t<T>, input_t<T>&>::value>* = nullptr,
+      neo::enable_if_t<std::is_void<output_t<T>>::value>* = nullptr>
+      void operator()(T&& pipe){
+          pipe._callable(std::get<input_t<T>>(dp_._buffer[pf_._line].data));
+      }
+
+      template<typename T,
+      neo::enable_if_t<absl::base_internal::is_invocable<callable_t<T>, input_t<T>&>::value>* = nullptr,
+      neo::enable_if_t<!std::is_void<output_t<T>>::value>* = nullptr>
+      void operator()(T&& pipe){
+          dp_._buffer[pf_._line].data = pipe._callable(
+                  std::get<input_t<T>>(dp_._buffer[pf_._line].data)
+                  );
+      }
+
+      template<typename T,
+      neo::enable_if_t<absl::base_internal::is_invocable<callable_t<T>, input_t<T>&, Pipeflow&>::value>* = nullptr,
+      neo::enable_if_t<std::is_void<output_t<T>>::value>* = nullptr>
+      void operator()(T&& pipe){
+        pipe._callable(std::get<input_t<T>>(dp_._buffer[pf_._line].data), pf_);
+      }
+
+      template<typename T,
+      neo::enable_if_t<absl::base_internal::is_invocable<callable_t<T>, input_t<T>&, Pipeflow&>::value>* = nullptr,
+      neo::enable_if_t<!std::is_void<output_t<T>>::value>* = nullptr>
+      void operator()(T&& pipe){
+        dp_._buffer[pf_._line].data = pipe._callable(
+          std::get<input_t<T>>(dp_._buffer[pf_._line].data), pf_
+        );
+      }
+
+      template<typename T,
+          neo::enable_if_t<
+              !absl::base_internal::is_invocable<callable_t<T>, Pipeflow&>::value &&
+              !absl::base_internal::is_invocable<callable_t<T>, input_t<T>&>::value &&
+              !absl::base_internal::is_invocable<callable_t<T>, input_t<T>&, Pipeflow&>::value
+          >* = nullptr>
+      void operator()(T&& pipe){
+          static_assert(dependent_false<callable_t<T>>::value, "un-supported pipe callable type");
+      }
+
+  };
+
 
   Graph _graph;
 
@@ -486,54 +557,9 @@ void DataPipeline<Ps...>::reset() {
 template <typename... Ps>
 void DataPipeline<Ps...>::_on_pipe(Pipeflow& pf, Runtime&) {
 
-  visit_tuple([&](auto&& pipe){
 
-    using data_pipe_t = neo::decay_t<decltype(pipe)>;
-    using callable_t  = typename data_pipe_t::callable_t;
-    using input_t     = neo::decay_t<typename data_pipe_t::input_t>;
-    using output_t    = neo::decay_t<typename data_pipe_t::output_t>;
-    
-    // first pipe
-    if constexpr (absl::base_internal::is_invocable<callable_t, Pipeflow&>::value) {
-      // [](tf::Pipeflow&) -> void {}, i.e., we only have one pipe
-      if constexpr (std::is_void<output_t>::value) {
-        pipe._callable(pf);
-      // [](tf::Pipeflow&) -> output_t {}
-      } else {
-        _buffer[pf._line].data = pipe._callable(pf);
-      }
-    }
-    // other pipes without pipeflow in the second argument
-    else if constexpr (absl::base_internal::is_invocable<callable_t, input_t&>::value) {
-      // [](input_t&) -> void {}, i.e., the last pipe
-      if constexpr (std::is_void<output_t>::value) {
-        pipe._callable(std::get<input_t>(_buffer[pf._line].data));
-      // [](input_t&) -> output_t {}
-      } else {
-        _buffer[pf._line].data = pipe._callable(
-          std::get<input_t>(_buffer[pf._line].data)
-        );
-      }
-    }
-    // other pipes with pipeflow in the second argument
-    else if constexpr (absl::base_internal::is_invocable<callable_t, input_t&, Pipeflow&>::value) {
-      // [](input_t&, tf::Pipeflow&) -> void {}
-      if constexpr (std::is_void<output_t>::value) {
-        pipe._callable(std::get<input_t>(_buffer[pf._line].data), pf);
-      // [](input_t&, tf::Pipeflow&) -> output_t {}
-      } else {
-        _buffer[pf._line].data = pipe._callable(
-          std::get<input_t>(_buffer[pf._line].data), pf
-        );
-      }
-    }
-    //else if constexpr(std::is_invocable_v<callable_t, Pipeflow&, Runtime&>) {
-    //  pipe._callable(pf, rt);
-    //}
-    else {
-      static_assert(dependent_false<callable_t>::value, "un-supported pipe callable type");
-    }
-  }, _pipes, pf._pipe);
+  Visitor visitor(*this, pf);
+  visit_tuple(visitor, _pipes, pf._pipe);
 }
 
 // Procedure: _build
