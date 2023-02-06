@@ -383,7 +383,7 @@ class DataPipeline {
       neo::enable_if_t<absl::base_internal::is_invocable<callable_t<T>, input_t<T>&>::value>* = nullptr,
       neo::enable_if_t<std::is_void<output_t<T>>::value>* = nullptr>
       void operator()(T&& pipe){
-          pipe._callable(std::get<input_t<T>>(dp_._buffer[pf_._line].data));
+          pipe._callable(absl::get<input_t<T>>(dp_._buffer[pf_._line].data));
       }
 
       template<typename T,
@@ -391,7 +391,7 @@ class DataPipeline {
       neo::enable_if_t<!std::is_void<output_t<T>>::value>* = nullptr>
       void operator()(T&& pipe){
           dp_._buffer[pf_._line].data = pipe._callable(
-                  std::get<input_t<T>>(dp_._buffer[pf_._line].data)
+                  absl::get<input_t<T>>(dp_._buffer[pf_._line].data)
                   );
       }
 
@@ -556,10 +556,7 @@ void DataPipeline<Ps...>::reset() {
 // Procedure: _on_pipe
 template <typename... Ps>
 void DataPipeline<Ps...>::_on_pipe(Pipeflow& pf, Runtime&) {
-
-
-  Visitor visitor(*this, pf);
-  visit_tuple(visitor, _pipes, pf._pipe);
+  visit_tuple(Visitor(*this, pf), _pipes, pf._pipe);
 }
 
 // Procedure: _build
